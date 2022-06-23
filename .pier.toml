@@ -1,0 +1,47 @@
+[scripts.quitvm]
+alias="quitvm"
+command="echo 'quit' | nc 127.0.0.1 41412"
+
+[scripts.spk-intel]
+alias="spk-intel"
+command="oscsend 127.0.0.1 5510 /spk/select i 0"
+
+[scripts.spk-mbox]
+alias="spk-mbox"
+command="oscsend 127.0.0.1 5510 /spk/select i 1"
+
+[scripts.load-mbox]
+alias="load-mbox"
+command="jack_load -i '-dplughw:M2 -p512 -r48000 -n3 -g4096' Mbox2 audioadapter"
+
+[scripts.unload-mbox]
+alias="unload-mbox"
+command="jack_unload Mbox2"
+
+[scripts.mono-intel]
+alias="mono-intel"
+command="oscsend 127.0.0.1 5510 /edifier/mono f 1"
+
+[scripts.stereo-intel]
+alias="stereo-intel"
+command="oscsend 127.0.0.1 5510 /edifier/mono f 0"
+
+[scripts.mono-mbox]
+alias="mono-mbox"
+command="oscsend 127.0.0.1 5510 /alesis/mono f 1"
+
+[scripts.stereo-mbox]
+alias="stereo-mbox"
+command="oscsend 127.0.0.1 5510 /alesis/mono f 0"
+
+[scripts.luz-dia]
+alias="luz-dia"
+command="xbacklight -set 15; sct 6500"
+
+[scripts.luz-noite]
+alias="luz-noite"
+command="xbacklight -set 10; sct 5000"
+
+[scripts.iniciar]
+alias="iniciar"
+command="pulseaudio --daemon;jack_control start;fetchmail -d 120"

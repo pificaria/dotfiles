@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<aj-snapshot>
+<alsa>
+  <client name="System">
+    <port id="0" />
+    <port id="1" />
+  </client>
+  <client name="Midi Through">
+    <port id="0" />
+  </client>
+  <client name="Mbox 2">
+    <port id="0" />
+  </client>
+  <client name="aj-snapshot" />
+  <client name="Patchage" />
+</alsa>
+<jack>
+  <client name="system">
+    <port name="capture_1" />
+    <port name="capture_2" />
+  </client>
+  <client name="PulseAudio JACK Sink">
+    <port name="front-left">
+      <connection port="spk_strip:i_left" />
+    </port>
+    <port name="front-right">
+      <connection port="spk_strip:i_right" />
+    </port>
+  </client>
+  <client name="spk_strip">
+    <port name="o_left">
+      <connection port="baudline:in_1" />
+    </port>
+    <port name="o_right">
+      <connection port="baudline:in_2" />
+    </port>
+  </client>
+</jack>
+</aj-snapshot>

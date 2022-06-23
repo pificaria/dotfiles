@@ -1,0 +1,96 @@
+#!/bin/sh
+
+hd681() {
+	oscsend 127.0.0.1 5510 "/fil/1/type" s "lowshelf"
+	oscsend 127.0.0.1 5510 "/fil/1/freq" f 190
+	oscsend 127.0.0.1 5510 "/fil/1/gain" f "-0.6"
+	oscsend 127.0.0.1 5510 "/fil/1/q" f "0.5773"
+	oscsend 127.0.0.1 5510 "/fil/2/type" s "peak"
+	oscsend 127.0.0.1 5510 "/fil/2/freq" f 8200
+	oscsend 127.0.0.1 5510 "/fil/2/gain" f "-1.2"
+	oscsend 127.0.0.1 5510 "/fil/2/q" f "1.2"
+	oscsend 127.0.0.1 5510 "/fil/3/type" s "hishelf"
+	oscsend 127.0.0.1 5510 "/fil/3/freq" f 6400
+	oscsend 127.0.0.1 5510 "/fil/3/gain" f "-4"
+	oscsend 127.0.0.1 5510 "/fil/3/q" f "0.707"
+}
+
+connect_mbox() {
+	jack_connect "spk_strip:o_left" "Mbox2:playback_1"
+	jack_connect "spk_strip:o_right" "Mbox2:playback_2"
+}
+
+disconnect_mbox() {
+	jack_disconnect "spk_strip:o_left" "Mbox2:playback_1"
+	jack_disconnect "spk_strip:o_right" "Mbox2:playback_2"
+}
+
+connect_intel() {
+	jack_connect "spk_strip:o_left" "system:playback_1"
+	jack_connect "spk_strip:o_right" "system:playback_2"
+}
+
+disconnect_intel() {
+	jack_disconnect "spk_strip:o_left" "system:playback_1"
+	jack_disconnect "spk_strip:o_right" "system:playback_2"
+}
+
+exec_op() {
+	case "$1" in
+		mono)
+			oscsend 127.0.0.1 5510 "/mono" i 1;;
+		stereo)
+			oscsend 127.0.0.1 5510 "/mono" i 0;;
+		intel)
+			disconnect_mbox
+			connect_intel;;
+		mbox)
+			disconnect_intel
+			connect_mbox;;
+		mbox.alesis)
+			oscsend 127.0.0.1 5510 "/fader" f 0
+			oscsend 127.0.0.1 5510 "/fil/1/type" s "lowshelf"
+			oscsend 127.0.0.1 5510 "/fil/1/freq" f 300
+			oscsend 127.0.0.1 5510 "/fil/1/gain" f "-3"
+			oscsend 127.0.0.1 5510 "/fil/1/q" f "0.707"
+			oscsend 127.0.0.1 5510 "/fil/2/type" s "off"
+			oscsend 127.0.0.1 5510 "/fil/3/type" s "hishelf"
+			oscsend 127.0.0.1 5510 "/fil/3/freq" f 47
+			oscsend 127.0.0.1 5510 "/fil/3/gain" f "-3"
+			oscsend 127.0.0.1 5510 "/fil/3/q" f "0.79";;
+		mbox.hd681)
+			oscsend 127.0.0.1 5510 "/fader" f -6
+			hd681;;
+		intel.hd681)
+			oscsend 127.0.0.1 5510 "/fader" f -22
+			hd681;;
+		intel.edifier)
+			oscsend 127.0.0.1 5510 "/fader" f "-4"
+			oscsend 127.0.0.1 5510 "/fil/1/type" s "hipass"
+			oscsend 127.0.0.1 5510 "/fil/1/freq" f 140
+			oscsend 127.0.0.1 5510 "/fil/1/q" f 0.5
+			oscsend 127.0.0.1 5510 "/fil/2/type" s "off"
+			oscsend 127.0.0.1 5510 "/fil/3/type" s "off";;
+		intel.plug)
+			oscsend 127.0.0.1 5510 "/fader" f "-32"
+			oscsend 127.0.0.1 5510 "/fil/1/type" s "hipass"
+			oscsend 127.0.0.1 5510 "/fil/1/freq" f 70
+			oscsend 127.0.0.1 5510 "/fil/1/q" f 0.707
+			oscsend 127.0.0.1 5510 "/fil/2/type" s "hishelf"
+			oscsend 127.0.0.1 5510 "/fil/3/freq" f 9400
+			oscsend 127.0.0.1 5510 "/fil/3/gain" f "-3"
+			oscsend 127.0.0.1 5510 "/fil/3/type" s "off";;
+		*) 
+			echo "$0 presets"
+			exit 1;;
+	esac
+}
+
+if [ $# -eq 0 ]; then
+	echo "$0 presets"
+	exit 1
+fi
+
+for var in "$@"; do
+	exec_op "$var"
+done

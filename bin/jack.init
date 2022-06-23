@@ -1,0 +1,4 @@
+#!/bin/sh
+
+aj-snapshot -d -x $HOME/.config/jacksnaps/estripe &
+$HOME/bin/estripe -p 5510 -n "spk_strip" &

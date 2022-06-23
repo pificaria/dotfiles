@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ -z "$1" ]; then
+	echo "$0 page"
+	exit 1
+fi
+
+wget -qO- "$1" | gawk -v IGNORECASE=1 -v RS='</title' 'RT{gsub(/.*<title[^>]*>/,"");print;exit}' | recode html.. | sed 's/"/""/g' | sed 's/^/"/' | awk "{print \$0\"\\\",$1\"}" >> $HOME/.links.csv

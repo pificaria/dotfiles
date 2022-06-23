@@ -1,0 +1,84 @@
+#!/bin/bash
+
+CITEPROC="$HOME/.local/bin/pandoc-citeproc"
+BIBPATH="$HOME/waste/bib/.cit"
+
+clear_string() {
+	cat - | \
+		sed 's/<span class=\\"nocase\\">\(.*\)<\/span>/\1/g' | \
+		sed -e "s/'//g" -e 's/[`"~^]//g' \
+		-e 's/[ÁÂÀÃáâàãÄä]/a/g' -e 's/[ÉÊÈéèê]/e/g' -e 's/[ÍÌÎíìî]/i/g' \
+		-e 's/[ÓÕÔÒóôòõöÖ]/o/g' -e 's/[ÚÙÛúùûÜü]/u/g' -e 's/ø/o/g' \
+		-e 's/&/.and./g' -e 's/[],;().\\/:|{}?\[]//g' -e 's/ /./g' -e 's/@/at/g'| \
+		tr '[:upper:]' '[:lower:]' 
+}
+
+parse_family() {
+	local LINES=$($CITEPROC -j "$1" | jq -M '.[0] | .author | [.[] | .family] | .[]' | clear_string)
+	local NLINES=$(echo -n "$LINES" | grep '^.*$' -c)
+
+	if [ "$NLINES" -eq 0 ]; then
+		echo "unknown"
+	elif [ "$NLINES" -gt 2 ]; then
+		echo "various"
+	else 
+		echo -n "$LINES" | paste -sd '.' -
+	fi
+}
+
+parse_title() {
+	$CITEPROC -j "$1" | jq -M '.[0] | .title' | clear_string
+}
+
+parse_extension() {
+	local filename=$(basename -- "$1")
+	local extension=${filename##*.}
+	echo "$extension"
+}
+
+generate_name() {
+	local family=$(parse_family "$1")
+	local title=$(parse_title "$1")
+	echo "${family}__${title}"
+}
+
+move_pdf() {
+	local EXTENSION=$(parse_extension "$1")
+	local DEST="${PWD}/${2}.${EXTENSION}"
+	local ORIG="$1"
+	mv "$ORIG" "$DEST"
+
+	local MD5=($(md5sum "$DEST"))
+	local SHA256=($(sha256sum "$DEST"))
+	cat << EOF >> "$BIBPATH/${2}.DIGESTS" 
+# MD5
+$MD5  ${2}.${EXTENSION}
+# SHA256
+$SHA256  ${2}.${EXTENSION}
+EOF
+}
+
+move_bib() {
+	local DEST="$BIBPATH/${2}.bib"
+	local ORIG="$1"
+	mv "$ORIG" "$DEST"
+
+	local MD5=($(md5sum "$DEST"))
+	local SHA256=($(sha256sum "$DEST"))
+	cat << EOF >> "$BIBPATH/${2}.DIGESTS" 
+# MD5
+$MD5  ${2}.bib
+# SHA256
+$SHA256  ${2}.bib
+EOF
+}
+
+if [ -z "$1" -o -z "$2" -o ! -f "$1" -o ! -f "$2" ]; then
+	echo "$0 bib pdf"
+	exit 1
+fi
+
+NAME=$(generate_name "$1")
+echo "creating $NAME"
+move_pdf "$2" "$NAME"
+move_bib "$1" "$NAME"

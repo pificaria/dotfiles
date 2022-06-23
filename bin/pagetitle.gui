@@ -1,0 +1,7 @@
+#!/bin/sh
+
+URL=$(zenity --entry --text "URL" --title "URL?" --entry-text "")
+
+if [ -n "$URL" ]; then
+	$HOME/bin/pagetitle "$URL"
+fi

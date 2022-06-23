@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<aj-snapshot>
+<alsa>
+  <client name="System">
+    <port id="0" />
+    <port id="1" />
+  </client>
+  <client name="Midi Through">
+    <port id="0">
+      <connection client="Pure Data" port="1" />
+    </port>
+  </client>
+  <client name="Mbox 2">
+    <port id="0">
+      <connection client="Pure Data" port="0" />
+    </port>
+  </client>
+  <client name="CMD DC-1">
+    <port id="0">
+      <connection client="Pure Data" port="2" />
+    </port>
+  </client>
+  <client name="aj-snapshot" />
+  <client name="Pure Data">
+    <port id="4" />
+    <port id="5" />
+    <port id="6">
+      <connection client="CMD DC-1" port="0" />
+    </port>
+    <port id="7" />
+  </client>
+</alsa>
+<jack>
+  <client name="system">
+    <port name="capture_1" />
+    <port name="capture_2" />
+  </client>
+  <client name="PulseAudio JACK Sink">
+    <port name="front-left">
+      <connection port="spk_mgmt:in_5" />
+    </port>
+    <port name="front-right">
+      <connection port="spk_mgmt:in_6" />
+    </port>
+  </client>
+  <client name="spk_mgmt">
+    <port name="out_1">
+      <connection port="system:playback_1" />
+      <connection port="baudline:in_1" />
+    </port>
+    <port name="out_2">
+      <connection port="system:playback_2" />
+      <connection port="baudline:in_2" />
+    </port>
+    <port name="out_3">
+      <connection port="baudline:in_1" />
+      <connection port="Mbox2:playback_1" />
+    </port>
+    <port name="out_4">
+      <connection port="baudline:in_2" />
+      <connection port="Mbox2:playback_2" />
+    </port>
+  </client>
+  <client name="pure_data">
+    <port name="output0">
+      <connection port="spk_mgmt:in_5" />
+    </port>
+    <port name="output1">
+      <connection port="spk_mgmt:in_6" />
+    </port>
+    <port name="output2" />
+    <port name="output3" />
+  </client>
+</jack>
+</aj-snapshot>

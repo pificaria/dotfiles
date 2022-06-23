@@ -1,0 +1,26 @@
+Xft.dpi: 96
+Xft.antialias: true
+Xft.hinting: true
+Xft.rgba: rgb
+Xft.hintstyle: hintslight
+URxvt.perl-ext-common: default,selection-to-clipboard,font-size
+URxvt.background: black
+URxvt.foreground: white
+URxvt.scrollBar: Off
+! URxvt.font: xft:Fira Mono:style=Regular:pixelsize=10
+! URxvt.boldFont: xft:Fira Mono:style=Bold:pixelsize=10
+! URxvt.font: xft:Iosevka Term:style=Regular:pixelsize=12
+! URxvt.boldFont: xft:Iosevka Term:style=Bold:pixelsize=12
+URxvt.font: xft:Inconsolata:style=Regular:pixelsize=12
+URxvt.boldFont: xft:Inconsolata:style=Bold:pixelsize=12
+! URxvt.font: xft:IBM Plex Mono:style=Regular:pixelsize=10
+! URxvt.boldFont: xft:IBM Plex Mono:style=Bold:pixelsize=10
+URxvt.geometry: 111x26
+URxvt.iso14755: false
+URxvt.iso14755_52: false
+URxvt.keysym.C-minus: font-size:decrease
+URxvt.keysym.C-plus: font-size:increase
+
+xterm*modifyOtherKeys: 1
+xterm*formatOtherKeys: 1
+

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<aj-snapshot>
+<alsa>
+  <client name="System">
+    <port id="0" />
+    <port id="1" />
+  </client>
+  <client name="Midi Through">
+    <port id="0" />
+  </client>
+  <client name="Mbox 2">
+    <port id="0" />
+  </client>
+  <client name="a2jmidid" />
+  <client name="Patchage" />
+</alsa>
+<jack>
+  <client name="system">
+    <port name="capture_1">
+      <connection port="PulseAudio JACK Source:front-left" />
+      <connection port="REAPER:in3" />
+    </port>
+    <port name="capture_2">
+      <connection port="PulseAudio JACK Source:front-right" />
+      <connection port="REAPER:in4" />
+    </port>
+  </client>
+  <client name="PulseAudio JACK Sink">
+    <port name="front-left">
+      <connection port="edi:in_4" />
+      <connection port="REAPER:in1" />
+    </port>
+    <port name="front-right">
+      <connection port="edi:in_5" />
+      <connection port="REAPER:in2" />
+    </port>
+  </client>
+  <client name="MBox2 In">
+    <port name="capture_1">
+      <connection port="REAPER:in5" />
+    </port>
+    <port name="capture_2">
+      <connection port="REAPER:in6" />
+    </port>
+  </client>
+  <client name="a2j">
+    <port name="Midi Through [14] (capture): Midi Through Port-0">
+      <connection port="REAPER:MIDI Input 2" />
+    </port>
+    <port name="Mbox 2 [24] (capture): Mbox 2 MIDI 1">
+      <connection port="REAPER:MIDI Input 1" />
+    </port>
+  </client>
+  <client name="edi">
+    <port name="out_0">
+      <connection port="MBox2 Out:playback_1" />
+    </port>
+    <port name="out_1">
+      <connection port="MBox2 Out:playback_2" />
+    </port>
+    <port name="out_2">
+      <connection port="system:playback_1" />
+    </port>
+    <port name="out_3">
+      <connection port="system:playback_2" />
+    </port>
+  </client>
+  <client name="REAPER">
+    <port name="MIDI Output 1" />
+    <port name="MIDI Output 2" />
+    <port name="out1">
+      <connection port="edi:in_0" />
+    </port>
+    <port name="out2">
+      <connection port="edi:in_1" />
+    </port>
+    <port name="out3">
+      <connection port="edi:in_2" />
+    </port>
+    <port name="out4">
+      <connection port="edi:in_3" />
+    </port>
+  </client>
+</jack>
+</aj-snapshot>
