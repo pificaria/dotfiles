@@ -85,6 +85,10 @@ cmp.setup({
     end,
   },
   mapping = {
+	['<C-n>'] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Insert }),
+	['<C-p>'] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Insert }),
+	['<Down>'] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Select }),
+	['<Up>'] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Select }),
     ['<C-d>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i', 'c' }),
     ['<C-f>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i', 'c' }),
     ['<C-Space>'] = cmp.mapping(cmp.mapping.complete(), { 'i', 'c' }),
@@ -93,12 +97,12 @@ cmp.setup({
       i = cmp.mapping.abort(),
       c = cmp.mapping.close(),
     }),
-    ['<CR>'] = cmp.mapping.confirm({ select = true }),
+    ['<CR>'] = cmp.mapping.confirm({ select = false }),
   },
   sources = cmp.config.sources({
       { name = 'nvim_lsp' },
 	  { name = 'tags' },
-      { name = 'ultisnips' }, -- For ultisnips users.
+      { name = 'ultisnips' }, 
     }, {
       { name = 'buffer' },
   })
@@ -188,7 +192,7 @@ require'lspconfig'.texlab.setup {
 require'lspconfig'.rust_analyzer.setup{
   on_attach = on_attach,
   capabilities = capabilities,
-  cmd = { "~/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rust-analyzer" },
+  cmd = { os.getenv("HOME").."/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rust-analyzer" },
   settings = {
       ["rust-analyzer"] = {
     	  ["checkOnSave"] = {
@@ -205,7 +209,7 @@ EOF
 " require'lspconfig'.tsserver.setup{}
 " require'lspconfig'.clangd.setup{}
 " require'lspconfig'.rust_analyzer.setup{
-"   cmd = { "~/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rust-analyzer" },
+"   cmd = { "~/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/rust-analyzer" },
 "   settings = {
 " 	  ["rust-analyzer"] = {
 " 		  ["checkOnSave"] = {
@@ -406,7 +410,7 @@ au BufNewFile,BufRead *.ldg,*.ledger setf ledger
 let g:ycm_global_ycm_extra_conf = '~/.config/nvim/global_extra_conf.py'
 inoremap <expr> <up> pumvisible() ? '<c-e><up>' : '<up>'
 inoremap <expr> <down> pumvisible() ? '<c-e><down>' : '<down>'
-let g:ycm_rust_toolchain_root = '~/.rustup/toolchains/stable-x86_64-unknown-linux-gnu'
+let g:ycm_rust_toolchain_root = $HOME.'/.rustup/toolchains/stable-x86_64-unknown-linux-gnu'
 let g:ycm_key_list_select_completion = ['<C-n>']
 let g:ycm_key_list_previous_completion = ['<C-p>']
 let g:ycm_filetype_blacklist = {
