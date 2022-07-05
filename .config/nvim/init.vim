@@ -7,17 +7,16 @@ Plug 'nvim-lua/plenary.nvim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 
-
 " Plug 'nvim-telescope/telescope.nvim'
 " Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
 
 Plug 'fhill2/telescope-ultisnips.nvim'
 Plug 'skywind3000/asyncrun.vim'
 " Plug '/home/nil/waste/forks/vim-pandoc-markdown-preview'
-Plug 'vim-pandoc/vim-pandoc-syntax', { 'branch': 'minimized' }
-Plug 'pangloss/vim-javascript'
+" Plug 'vim-pandoc/vim-pandoc-syntax', { 'branch': 'minimized' }
+" Plug 'pangloss/vim-javascript'
 " Plug 'maxmellon/vim-jsx-pretty'
-Plug 'leafgarland/typescript-vim'
+" Plug 'leafgarland/typescript-vim'
 " Plug 'peitalin/vim-jsx-typescript'
 " Plug 'styled-components/vim-styled-components', { 'branch': 'main' }
 Plug 'junegunn/limelight.vim', { 'on':  'Limelight' }
@@ -46,7 +45,7 @@ Plug 'madskjeldgaard/supercollider-h4x-nvim'
 
 " Plug 'ervandew/supertab'
 " Plug 'vim-syntastic/syntastic'
-Plug 'mhinz/vim-startify'
+" Plug 'mhinz/vim-startify'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'nvim-treesitter/nvim-treesitter-refactor'
 " Plug 'yamatsum/nvim-nonicons'
@@ -60,69 +59,82 @@ Plug 'neovim/nvim-lspconfig'
 " Plug 'ms-jpq/coq.artifacts', {'branch': 'artifacts'}
 " Plug 'ms-jpq/coq.thirdparty', {'branch': '3p'}
 
-Plug 'quangnguyen30192/cmp-nvim-tags'
-Plug 'hrsh7th/cmp-nvim-lsp'
-Plug 'hrsh7th/cmp-buffer'
-Plug 'hrsh7th/cmp-path'
-Plug 'hrsh7th/cmp-cmdline'
+" Plug 'quangnguyen30192/cmp-nvim-tags'
+" Plug 'hrsh7th/cmp-nvim-lsp'
+" Plug 'hrsh7th/cmp-buffer'
+" Plug 'hrsh7th/cmp-path'
+" Plug 'hrsh7th/cmp-cmdline'
 " Plug 'ray-x/cmp-treesitter'
-Plug 'hrsh7th/nvim-cmp'
-Plug 'quangnguyen30192/cmp-nvim-ultisnips'
+" Plug 'hrsh7th/nvim-cmp'
+" Plug 'quangnguyen30192/cmp-nvim-ultisnips'
+
+Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
+Plug 'ms-jpq/coq.artifacts', {'branch': 'artifacts'}
+Plug 'ms-jpq/coq.thirdparty', {'branch': '3p'}
 call plug#end()
+
+" Coq
+let g:coq_settings = { 'auto_start': v:true } 
+lua << EOF
+require("coq_3p") {
+  { src = "nvimlua", short_name = "nLUA" },
+  { src = "vimtex", short_name = "vTEX" },
+}
+EOF
 
 " Cmp
 set completeopt=menu,menuone,noselect
 
 lua <<EOF
 -- Setup nvim-cmp.
-local cmp = require'cmp'
-
-cmp.setup({
-  snippet = {
-    -- REQUIRED - you must specify a snippet engine
-    expand = function(args)
-      vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
-    end,
-  },
-  mapping = {
-	['<C-n>'] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Insert }),
-	['<C-p>'] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Insert }),
-	['<Down>'] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Select }),
-	['<Up>'] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Select }),
-    ['<C-d>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i', 'c' }),
-    ['<C-f>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i', 'c' }),
-    ['<C-Space>'] = cmp.mapping(cmp.mapping.complete(), { 'i', 'c' }),
-    ['<C-y>'] = cmp.config.disable, -- Specify `cmp.config.disable` if you want to remove the default `<C-y>` mapping.
-    ['<C-e>'] = cmp.mapping({
-      i = cmp.mapping.abort(),
-      c = cmp.mapping.close(),
-    }),
-    ['<CR>'] = cmp.mapping.confirm({ select = false }),
-  },
-  sources = cmp.config.sources({
-      { name = 'nvim_lsp' },
-	  { name = 'tags' },
-      { name = 'ultisnips' }, 
-    }, {
-      { name = 'buffer' },
-  })
-})
+-- local cmp = require'cmp'
+-- 
+-- cmp.setup({
+--   snippet = {
+--     -- REQUIRED - you must specify a snippet engine
+--     expand = function(args)
+--       vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
+--     end,
+--   },
+--   mapping = {
+-- 	['<C-n>'] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Insert }),
+-- 	['<C-p>'] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Insert }),
+-- 	['<Down>'] = cmp.mapping.select_next_item({ behavior = cmp.SelectBehavior.Select }),
+-- 	['<Up>'] = cmp.mapping.select_prev_item({ behavior = cmp.SelectBehavior.Select }),
+--     ['<C-d>'] = cmp.mapping(cmp.mapping.scroll_docs(-4), { 'i', 'c' }),
+--     ['<C-f>'] = cmp.mapping(cmp.mapping.scroll_docs(4), { 'i', 'c' }),
+--     ['<C-Space>'] = cmp.mapping(cmp.mapping.complete(), { 'i', 'c' }),
+--     ['<C-y>'] = cmp.config.disable, -- Specify `cmp.config.disable` if you want to remove the default `<C-y>` mapping.
+--     ['<C-e>'] = cmp.mapping({
+--       i = cmp.mapping.abort(),
+--       c = cmp.mapping.close(),
+--     }),
+--     ['<CR>'] = cmp.mapping.confirm({ select = false }),
+--   },
+--   sources = cmp.config.sources({
+--       { name = 'nvim_lsp' },
+-- 	  { name = 'tags' },
+--       { name = 'ultisnips' }, 
+--     }, {
+--       { name = 'buffer' },
+--   })
+-- })
 
 -- Use buffer source for `/` (if you enabled `native_menu`, this won't work anymore).
-cmp.setup.cmdline('/', {
-  sources = {
-    { name = 'buffer' }
-  }
-})
+-- cmp.setup.cmdline('/', {
+--   sources = {
+--     { name = 'buffer' }
+--   }
+-- })
 
 -- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
-cmp.setup.cmdline(':', {
-  sources = cmp.config.sources({
-    { name = 'path' }
-  }, {
-    { name = 'cmdline' }
-  })
-})
+-- cmp.setup.cmdline(':', {
+--   sources = cmp.config.sources({
+--     { name = 'path' }
+--   }, {
+--     { name = 'cmdline' }
+--   })
+-- })
 
 -- Setup lspconfig.
 -- Use an on_attach function to only map the following keys
@@ -172,7 +184,8 @@ local on_attach = function(client, bufnr)
 
 end
 
-local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
+-- local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
+local coq = require("coq").lsp_ensure_capabilities(vim.lsp.protocol.make_client_capabilities())
 require'lspconfig'.gopls.setup {
   on_attach = on_attach,
   capabilities = capabilities
@@ -461,14 +474,16 @@ augroup rust
 augroup end
 
 " Typescript
-augroup typescript
-    autocmd!
-	autocmd FileType rust call YcmStuff()
-augroup end
+"augroup typescript
+"    autocmd!
+"	autocmd FileType rust call YcmStuff()
+"augroup end
 autocmd FileType typescript set shiftwidth=2 | set softtabstop=2 | set tabstop=2 | setlocal indentkeys+=0
 autocmd FileType javascript set shiftwidth=2 | set softtabstop=2 | set tabstop=2 | setlocal indentkeys+=0
 let g:typescript_opfirst='\%([<>=,?^%|*/&]\|\([-:+]\)\1\@!\|!=\|in\%(stanceof\)\=\>\)'
 let g:typescript_indent_disable = 1
+
+" Rust
 let g:rustfmt_command = "cargo fmt -- "
 
 " Latex

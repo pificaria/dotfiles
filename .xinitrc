@@ -6,8 +6,9 @@ xrdb -merge ~/.Xresources
 xinput --set-prop "AlpsPS/2 ALPS DualPoint Stick" 279 1
 xinput --set-prop "AlpsPS/2 ALPS DualPoint TouchPad" 131 0
 
-qiv -z "$HOME/waste/img/ae.nts.wp.jpg"
+qiv -z $HOME/waste/img/ae.nts.wp.jpg
 
 # xsetroot -cursor_name left_ptr
 conky -d
+xautolock -time 5 -locker slock &
 exec fvwm

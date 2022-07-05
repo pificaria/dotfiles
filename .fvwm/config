@@ -4,7 +4,7 @@
 
 DesktopSize 3x3
 DesktopName 0 a
-# DesktopName 1 b
+DesktopName 1 b
 # DesktopName 2 c
 # DesktopName 3 d
 # DesktopName 4 f
@@ -566,8 +566,10 @@ SetAnimation 10 -.01 0 .01 .03 .08 .18 .3 \
   Key       7       A   4   GotoPage 0 2
   Key       8       A   4   GotoPage 1 2
   Key       9       A   4   GotoPage 2 2
-#  Key       1       A   4   GotoDesk 0 0
-#  Key       2       A   4   GotoDesk 0 1
+  Key       0       A   C4   GotoDesk 0 0
+  Key       1       A   C4   GotoDesk 0 1
+  Key       0       A   CM   MoveToDesk 0 0
+  Key       1       A   CM   MoveToDesk 0 1
 #  Key       3       A   4   GotoDesk 0 2
 #  Key       4       A   4   GotoDesk 0 3
 #  Key       5       A   4   GotoDesk 0 4
