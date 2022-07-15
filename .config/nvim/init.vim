@@ -121,25 +121,35 @@ EOF
 " Tree-sitter
 lua <<EOF
 require'nvim-treesitter.configs'.setup {
-  matchup = { enable = true, },
-  refactor = {
-	smart_rename = {
-      enable = true,
-      keymaps = {
-        smart_rename = "grr",
-      },
-    },
-    navigation = {
-      enable = true,
-      keymaps = {
-        goto_definition = "gnd",
-        list_definitions = "gnD",
-        list_definitions_toc = "gO",
-        goto_next_usage = "<a-*>",
-        goto_previous_usage = "<a-#>",
-      },
-    },
-  },
+	ensure_installed = {
+		'c', 'cpp', 'go', 'html', 'javascript', 'python', 'rust', 'typescript', 'tsx'
+	},
+	highlight = {
+		enable = true,
+		additional_vim_regex_highlighting = true,
+	},
+	indent = {
+		enable = true,
+	},
+	matchup = { enable = true, },
+	refactor = {
+		smart_rename = {
+			enable = true,
+			keymaps = {
+				smart_rename = "grr",
+				},
+			},
+		navigation = {
+			enable = true,
+			keymaps = {
+				goto_definition = "gnd",
+				list_definitions = "gnD",
+				list_definitions_toc = "gO",
+				goto_next_usage = "<a-*>",
+				goto_previous_usage = "<a-#>",
+				},
+			},
+		},
 }
 EOF
 
@@ -318,7 +328,9 @@ augroup end
 
 " Typescript
 autocmd FileType typescript set shiftwidth=2 | set softtabstop=2 | set tabstop=2 | setlocal indentkeys+=0
+autocmd FileType typescriptreact set shiftwidth=2 | set softtabstop=2 | set tabstop=2 | setlocal indentkeys+=0
 autocmd FileType javascript set shiftwidth=2 | set softtabstop=2 | set tabstop=2 | setlocal indentkeys+=0
+autocmd FileType javascriptreact set shiftwidth=2 | set softtabstop=2 | set tabstop=2 | setlocal indentkeys+=0
 let g:typescript_opfirst='\%([<>=,?^%|*/&]\|\([-:+]\)\1\@!\|!=\|in\%(stanceof\)\=\>\)'
 let g:typescript_indent_disable = 1
 
