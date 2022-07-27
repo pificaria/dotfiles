@@ -1,127 +1,32 @@
-" Plugins
-call plug#begin(stdpath('data') . '/plugged')
+call plug#begin('~/.local/share/nvim/site/plugged')
 Plug 'SirVer/ultisnips'
-Plug 'andymass/vim-matchup'
-Plug 'nvim-lua/plenary.nvim'
+
+Plug 'pificaria/preto'
 
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-
-Plug 'nvim-telescope/telescope.nvim'
-Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
-
-Plug 'fhill2/telescope-ultisnips.nvim'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'junegunn/limelight.vim', { 'on':  'Limelight' }
-Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
-Plug 'pificaria/preto'
-Plug 'lervag/vimtex'
-
-Plug 'preservim/vim-markdown'
-Plug 'jakewvincent/mkdnflow.nvim'
-Plug 'SidOfc/mkdx'
-" Plug 'arthurxavierx/vim-unicoder'
-
-Plug 'davidgranstrom/scnvim', { 'do': { -> scnvim#install() } }
-Plug 'madskjeldgaard/supercollider-h4x-nvim'
-
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'nvim-treesitter/nvim-treesitter-refactor'
 
-Plug 'ms-jpq/chadtree', {'branch': 'chad', 'do': 'python3 -m chadtree deps'}
+Plug 'lervag/vimtex'
+Plug 'preservim/vim-markdown'
+Plug 'jakewvincent/mkdnflow.nvim'
+Plug 'SidOfc/mkdx'
+Plug 'jbyuki/venn.nvim'
+Plug 'ellisonleao/glow.nvim'
+
 Plug 'neovim/nvim-lspconfig'
-Plug 'ms-jpq/coq_nvim', { 'branch': 'coq' }
+Plug 'ms-jpq/chadtree', {'branch': 'chad', 'do': 'python3 -m chadtree deps'}
+Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
 Plug 'ms-jpq/coq.artifacts', {'branch': 'artifacts'}
 Plug 'ms-jpq/coq.thirdparty', {'branch': '3p'}
+
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
+Plug 'nvim-telescope/telescope-bibtex.nvim'
 call plug#end()
-
-" Coq
-let g:coq_settings = { 'auto_start': 'shut-up' }
-lua << EOF
-require("coq_3p") {
-  { src = "nvimlua", short_name = "nLUA" },
-  { src = "vimtex", short_name = "vTEX" },
-}
-EOF
-
-" Setup lspconfig.
-" Use an on_attach function to only map the following keys
-" after the language server attaches to the current buffer
-lua<<EOF
-vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-    vim.lsp.diagnostic.on_publish_diagnostics, {
-      -- disable virtual text
-      virtual_text = false,
-
-      -- show signs
-      signs = true,
-
-      -- delay update diagnostics
-      update_in_insert = false,
-      -- display_diagnostic_autocmds = { "InsertLeave" },
-
-    }
-)
-
-local on_attach = function(client, bufnr)
-  local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
-  local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
-
-  -- Enable completion triggered by <c-x><c-o>
-  buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
-
-  -- Mappings.
-  local opts = { noremap=true, silent=true }
-
-  -- See `:help vim.lsp.*` for documentation on any of the below functions
-  buf_set_keymap('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', opts)
-  buf_set_keymap('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
-  buf_set_keymap('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
-  buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
-  buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
-  buf_set_keymap('n', '<leader>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
-  buf_set_keymap('n', '<leader>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
-  buf_set_keymap('n', '<leader>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
-  buf_set_keymap('n', '<leader>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
-  buf_set_keymap('n', '<leader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
-  buf_set_keymap('n', '<leader>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
-  buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
-  buf_set_keymap('n', '<leader>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
-  buf_set_keymap('n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
-  buf_set_keymap('n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
-  buf_set_keymap('n', '<leader>f', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
-end
-
-local coq = require("coq").lsp_ensure_capabilities(vim.lsp.protocol.make_client_capabilities())
-require'lspconfig'.gopls.setup {
-  on_attach = on_attach,
-  capabilities = capabilities
-}
-require'lspconfig'.tsserver.setup {
-  on_attach = on_attach,
-  capabilities = capabilities
-}
-require'lspconfig'.clangd.setup {
-  on_attach = on_attach,
-  capabilities = capabilities
-}
-require'lspconfig'.texlab.setup {
-  on_attach = on_attach,
-  capabilities = capabilities
-}
-require'lspconfig'.rust_analyzer.setup{
-  on_attach = on_attach,
-  capabilities = capabilities,
-  cmd = { os.getenv("HOME").."/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rust-analyzer" },
-  settings = {
-      ["rust-analyzer"] = {
-    	  ["checkOnSave"] = {
-    		["allTargets"] = "false"
-  	      }
-      }
-  }
-}
-EOF
 
 " Tree-sitter
 lua <<EOF
@@ -178,12 +83,16 @@ set inccommand=nosplit
 set shiftwidth=4
 set softtabstop=4
 set tabstop=4
-set tw=80
+set tw=50
 set nowrap
 set formatoptions-=t
 set autoindent
 set nolist
 set listchars=tab:>-
+" set textwidth=0
+" set wrapmargin=0
+" set wrap
+set linebreak # (optional - breaks by word rather than character)
 
 " Folding
 set foldmethod=syntax
@@ -210,18 +119,8 @@ nnoremap <expr> gp '`[' . strpart(getregtype(), 0, 1) . '`]'
 set laststatus=2
 set statusline=\ %n\ %M\ %R\ %<%{mode()}\ %<%f\ %=%{strftime(\"%d.%m\ %H:%M\")}\;\ %c\,\ %l\/%L\ %Y%W\ 
 
-" Deactivate autoindent to paste
-set pastetoggle=<F2>
-
 " Expand %% to pwd 
 cabbr %% <C-R>=expand('%:p:h')<CR>
-
-" Alt-f and Alt-b on insert mode
-imap f <S-Right>
-imap b <S-Left>
-
-" Plugin indent on
-filetype plugin indent on
 
 " Don't know what this is
 let g:is_posix = 1
@@ -247,170 +146,166 @@ cab Q q
 " Filetype on
 filetype on
 
-" Haskell
-let g:haskell_indent_if=4
-let g:haskell_indent_case=4
-
-" Eel
-au BufWinEnter,BufRead,BufNewFile *.jsfx set filetype=eel2
-au BufWinEnter,BufRead,BufNewFile *.jsfx-inc set filetype=eel2
-
-" Faust
-au BufWinEnter,BufRead,BufNewFile *.lib set filetype=faust
-au BufWinEnter,BufRead,BufNewFile *.dsp set filetype=faust
-
-" Python
-let g:pyindent_open_paren = 'shiftwidth()'
-let g:pyindent_nested_paren = 'shiftwidth()'
-let g:pyindent_continue = 'shiftwidth()'
-
-" HTML
-autocmd BufWinEnter,BufRead,BufNewFile *.html setlocal filetype=html
-autocmd FileType html,css setlocal tabstop=4 softtabstop=2 shiftwidth=2
-
-" Ocaml
-autocmd FileType ocaml setlocal nowrap 
-
-" Makefiles
-autocmd FileType make setlocal noexpandtab list
-
-" Ledger
-au BufNewFile,BufRead *.ldg,*.ledger setf ledger 
-
-" UltiSnips
-let g:UltiSnipsExpandTrigger = '<c-z>'
-let g:UltiSnipsJumpForwardTrigger = '<c-z>'
-let g:UltiSnipsJumpBackwardTrigger = '<s-tab>'
-let g:UltiSnipsSnippetDirectories=[$HOME.'/.config/nvim/UltiSnips', 'scnvim-data']
-
-" Rust
-function! Rusty()
-    nnoremap <C-e> :terminal cargo run<cr>
-    inoremap <C-e> <esc>:terminal cargo run<cr>
-endfunction 
-
-augroup rust
-    autocmd!
-  "  autocmd FileType rust call Rusty()
-	autocmd FileType rust call YcmStuff()
-augroup end
-
-let g:rustfmt_command = "cargo fmt -- "
-
-" Typescript
-autocmd FileType typescript set shiftwidth=2 | set softtabstop=2 | set tabstop=2 | setlocal indentkeys+=0
-autocmd FileType typescriptreact set shiftwidth=2 | set softtabstop=2 | set tabstop=2 | setlocal indentkeys+=0
-autocmd FileType javascript set shiftwidth=2 | set softtabstop=2 | set tabstop=2 | setlocal indentkeys+=0
-autocmd FileType javascriptreact set shiftwidth=2 | set softtabstop=2 | set tabstop=2 | setlocal indentkeys+=0
-let g:typescript_opfirst='\%([<>=,?^%|*/&]\|\([-:+]\)\1\@!\|!=\|in\%(stanceof\)\=\>\)'
-let g:typescript_indent_disable = 1
-
-" Latex
-au BufWinEnter,BufRead,BufNewFile *.tex setf tex
-au FileType tex setlocal wrap
-let g:tex_flavor='latex'
-" let g:vimtex_view_method='zathura'
-let g:vimtex_view_enabled = 0
-let g:vimtex_view_general_viewer = 'zathura'
-let g:vimtex_quickfix_mode=2
-let g:vimtex_quickfix_open_on_warning=0
-let g:vimtex_compiler_latexmk_engines = {
-    \ '_'                : '-xelatex',
-    \}
-let g:tex_conceal='abdmg'
-hi clear Conceal
-
-function! TexHighlights()
-	hi! link texItalStyle Underlined
-	hi! link texEmphStyle Underlined
-	hi! link texBoldItalStyle Underlined
-	hi! link texItalBoldStyle Underlined
-endfunction
-
-augroup TexColors
-	autocmd!
-	autocmd Filetype tex call TexHighlights()
-augroup END
-
-" Conceal
-au FileType tex,markdown setlocal conceallevel=2
-
-" Mouse
-set mouse=a
-
-" Shaders
-autocmd BufRead,BufNewFile *.vert set filetype=cpp
-autocmd BufRead,BufNewFile *.frag set filetype=cpp
-
-" Julia
-autocmd BufRead,BufNewFile *.ij set filetype=julia
-
-" PHP
-autocmd BufRead,BufNewFile *.php filetype plugin indent off
-command! PhpFmt :1,$!phpcbf --standard=PEAR - 
-
-" Modeline
-set modeline
-
-" C++
-" au FileType cpp setlocal cino=:0l1g0t0
-let g:clang_format#auto_formatexpr = 1
-let g:clang_format#code_style = "google"
-
-" Matchparen
-let g:matchup_override_vimtex = 1
-let g:matchup_matchparen_deferred = 1
-
-" jsx-pretty
-let g:vim_jsx_pretty_disable_tsx = 1
-
-" Goyo
-autocmd! User GoyoEnter Limelight
-autocmd! User GoyoLeave Limelight!
-nmap <Leader>g :Goyo<CR>
-nmap <Leader>l :Limelight!!<CR>
-
-" Terminal mode
-nmap <Leader>tv :vsplit term://bash<CR>
-nmap <Leader>ts :split term://bash<CR>
-
-" Supercollider
-augroup scnvim_settings
-	autocmd FileType supercollider setlocal tabstop=4 softtabstop=4 shiftwidth=4
-	autocmd BufNewFile,BufFilePre,BufRead *.scd set filetype=supercollider
-	autocmd BufNewFile,BufFilePre,BufRead *.sc set filetype=supercollider
-	autocmd FileType supercollider nmap <Leader>s :SCNvimStart<CR>
-	autocmd FileType supercollider nmap <Leader>S :SCNvimStop<CR>
-augroup END
-
-let g:scnvim_scdoc = 1
-let g:scnvim_scdoc_render_prg = '~/.local/bin/pandoc'
-let g:scnvim_scdoc_render_args = '% --from html --to plain -o %'
-let g:scnvim_postwin_orientation = 'h'
-let g:scnvim_postwin_size = 5
-autocmd filetype supercollider,scnvim,scdoc,supercollider.help lua require'supercollider-h4x'.setup()
-
-" Moveção de linha
-nnoremap <C-J> :m .+1<CR>==
-nnoremap <C-K> :m .-2<CR>==
-inoremap <C-J> <Esc>:m .+1<CR>==gi
-inoremap <C-K> <Esc>:m .-2<CR>==gi
-vnoremap <C-J> :m '>+1<CR>gv=gv
-vnoremap <C-K> :m '<-2<CR>gv=gv
-
-" Startify
-" let g:startify_custom_header = ['asdf?']
-
-" OCaml
-let g:opamshare = substitute(system('~/.local/bin/opam var share'),'\n$','','''')
-execute "set rtp+=" . g:opamshare . "/merlin/vim"
+" Remember cursor position
+autocmd BufReadPost *
+  \ if line("'\"") >= 1 && line("'\"") <= line("$") |
+  \   exe "normal! g`\"" |
+  \ endif
 
 " Chadtree
 nnoremap <C-n> <cmd>CHADopen<cr>
 let g:chadtree_settings = { "options.polling_rate": 6.0 }
 
-" Buffer utility
-nnoremap <C-x><C-d> :bp\|bd #<CR>
+" Coq
+" let g:coq_settings = { 'auto_start': 'shut-up' } 
+lua << EOF
+require("coq_3p") {
+  { src = "nvimlua", short_name = "nLUA" },
+}
+EOF
+
+" Time insertion
+nnoremap <leader>d "=strftime("%Y/%m/%d")<CR>P
+nnoremap <leader>t "=strftime("%T")<CR>P
+nnoremap <leader>dt "=strftime("%Y/%m/%d %T")<CR>P
+nnoremap <leader>hj "=strftime("[%d](%Y-%m-%d.md)")<CR>P
+
+" LSP
+lua<<EOF
+vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+    vim.lsp.diagnostic.on_publish_diagnostics, {
+      -- disable virtual text
+      virtual_text = false,
+
+      -- show signs
+      signs = true,
+
+      -- delay update diagnostics
+      update_in_insert = false,
+      -- display_diagnostic_autocmds = { "InsertLeave" },
+
+    }
+)
+
+local on_attach = function(client, bufnr)
+  local function buf_set_keymap(...) vim.api.nvim_buf_set_keymap(bufnr, ...) end
+  local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+
+  -- Enable completion triggered by <c-x><c-o>
+  buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+  -- Mappings.
+  local opts = { noremap=true, silent=true }
+
+  -- See `:help vim.lsp.*` for documentation on any of the below functions
+  buf_set_keymap('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', opts)
+  buf_set_keymap('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)
+  buf_set_keymap('n', 'K', '<cmd>lua vim.lsp.buf.hover()<CR>', opts)
+  buf_set_keymap('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<CR>', opts)
+  buf_set_keymap('n', '<C-k>', '<cmd>lua vim.lsp.buf.signature_help()<CR>', opts)
+  buf_set_keymap('n', '<leader>wa', '<cmd>lua vim.lsp.buf.add_workspace_folder()<CR>', opts)
+  buf_set_keymap('n', '<leader>wr', '<cmd>lua vim.lsp.buf.remove_workspace_folder()<CR>', opts)
+  buf_set_keymap('n', '<leader>wl', '<cmd>lua print(vim.inspect(vim.lsp.buf.list_workspace_folders()))<CR>', opts)
+  buf_set_keymap('n', '<leader>D', '<cmd>lua vim.lsp.buf.type_definition()<CR>', opts)
+  buf_set_keymap('n', '<leader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+  buf_set_keymap('n', '<leader>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
+  buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
+  buf_set_keymap('n', '<leader>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
+  buf_set_keymap('n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
+  buf_set_keymap('n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+  buf_set_keymap('n', '<leader>f', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
+end
+
+local coq = require("coq").lsp_ensure_capabilities(vim.lsp.protocol.make_client_capabilities())
+EOF
+
+" Telescope
+lua << EOF
+require"telescope".load_extension("bibtex")
+EOF
+nnoremap <leader>bib <cmd>Telescope bibtex<cr>
+
+" Markdown
+augroup md_kbs
+	autocmd FileType markdown nnoremap <leader>g :Glow<cr>
+augroup END
+lua<<EOF
+-- If you have an init.lua
+vim.cmd('autocmd FileType markdown set autowriteall')
+require('mkdnflow').setup({
+perspective = {
+	priority = 'root',
+	fallback = 'current',
+	root_tell = 'index.md',
+	},
+mappings = {
+	MkdnNewListItem = {'i', '<CR>'}
+	}
+})
+EOF
+
+" make_note_link: List -> Str
+" returned string: [Title](YYYYMMDDHH.md)
+function! s:make_note_link(l)
+        " fzf#vim#complete returns a list with all info in index 0
+        " let line = split(a:l[0], ':')
+        " let ztk_id = l:line[0]
+    try
+        " let ztk_title = substitute(l:line[2], '\#\+\s\+', '', 'g')
+catch
+
+        " let ztk_title = substitute(l:line[1], '\#\+\s\+', '', 'g')
+endtry
+        " let mdlink = "[" . ztk_title ."](". ztk_id .")"
+		let line = split(a:l[1], ':')
+		let ztk_id = l:line[0]
+		let mdlink = "[" . a:l[0] . "](" . ztk_id . ")"
+        return mdlink
+endfunction
+
+" mnemonic link zettel
+inoremap <expr> <c-l>z fzf#vim#complete({
+  \ 'source':  'rg --no-heading --smart-case  .',
+  \ 'reducer': function('<sid>make_note_link'),
+  \ 'options': '--exact --print-query --multi --reverse --margin 15%,0',
+  \ 'up':    15})
+
+" Venn
+lua<<EOF
+-- venn.nvim: enable or disable keymappings
+function _G.Toggle_venn()
+    local venn_enabled = vim.inspect(vim.b.venn_enabled)
+    if venn_enabled == "nil" then
+        vim.b.venn_enabled = true
+        vim.cmd[[setlocal ve=all]]
+        -- draw a line on HJKL keystokes
+        vim.api.nvim_buf_set_keymap(0, "n", "J", "<C-v>j:VBox<CR>", {noremap = true})
+        vim.api.nvim_buf_set_keymap(0, "n", "K", "<C-v>k:VBox<CR>", {noremap = true})
+        vim.api.nvim_buf_set_keymap(0, "n", "L", "<C-v>l:VBox<CR>", {noremap = true})
+        vim.api.nvim_buf_set_keymap(0, "n", "H", "<C-v>h:VBox<CR>", {noremap = true})
+        -- draw a box by pressing "f" with visual selection
+        vim.api.nvim_buf_set_keymap(0, "v", "f", ":VBox<CR>", {noremap = true})
+    else
+        vim.cmd[[setlocal ve=]]
+        vim.cmd[[mapclear <buffer>]]
+        vim.b.venn_enabled = nil
+    end
+end
+-- toggle keymappings for venn using <leader>v
+vim.api.nvim_set_keymap('n', '<leader>v', ":lua Toggle_venn()<CR>", { noremap = true})
+EOF
+
+" Nabla
+nnoremap <leader>p :lua require("nabla").popup()<CR> " Customize with popup({border = ...})  : `single` (default), `double`, `rounded`
+
+" Glow
+lua<<EOF
+require('glow').setup({
+  style = "dark",
+  width = 120,
+})
+vim.api.nvim_set_keymap("n", "<C-w>z", "<C-w>|<C-w>_", { noremap = true, silent = true})
+EOF
 
 " Mkdn
 let g:mkdx#settings     = { 'highlight': { 'enable': 1 },
@@ -457,8 +352,50 @@ require('mkdnflow').setup({
 })
 EOF
 
-autocmd BufNewFile,BufRead ~/waste/sync/k/n/* setlocal tw=50
-
 let g:vim_markdown_math = 1
 let g:vim_markdown_folding_disabled = 1
 let g:vim_markdown_frontmatter = 1
+
+" Moveção de linha
+nnoremap <C-J> :m .+1<CR>==
+nnoremap <C-K> :m .-2<CR>==
+inoremap <C-J> <Esc>:m .+1<CR>==gi
+inoremap <C-K> <Esc>:m .-2<CR>==gi
+vnoremap <C-J> :m '>+1<CR>gv=gv
+vnoremap <C-K> :m '<-2<CR>gv=gv
+
+" Latex
+au BufWinEnter,BufRead,BufNewFile *.tex setf tex
+au FileType tex setlocal wrap
+let g:tex_flavor='latex'
+" let g:vimtex_view_method='zathura'
+let g:vimtex_view_enabled = 0
+let g:vimtex_view_general_viewer = 'zathura'
+let g:vimtex_quickfix_mode=2
+let g:vimtex_quickfix_open_on_warning=0
+let g:vimtex_compiler_latexmk_engines = {
+    \ '_'                : '-xelatex',
+    \}
+let g:tex_conceal='abdmg'
+hi clear Conceal
+
+function! TexHighlights()
+	hi! link texItalStyle Underlined
+	hi! link texEmphStyle Underlined
+	hi! link texBoldItalStyle Underlined
+	hi! link texItalBoldStyle Underlined
+endfunction
+
+augroup TexColors
+	autocmd!
+	autocmd Filetype tex call TexHighlights()
+augroup END
+
+" Conceal
+au FileType tex,markdown setlocal conceallevel=2
+
+" UltiSnips
+let g:UltiSnipsExpandTrigger = '<c-z>'
+let g:UltiSnipsJumpForwardTrigger = '<c-z>'
+let g:UltiSnipsJumpBackwardTrigger = '<s-tab>'
+let g:UltiSnipsSnippetDirectories=[$HOME.'/.config/nvim/UltiSnips', 'scnvim-data']
