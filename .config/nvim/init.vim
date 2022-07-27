@@ -7,8 +7,8 @@ Plug 'nvim-lua/plenary.nvim'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 
-" Plug 'nvim-telescope/telescope.nvim'
-" Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
+Plug 'nvim-telescope/telescope.nvim'
+Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
 
 Plug 'fhill2/telescope-ultisnips.nvim'
 Plug 'skywind3000/asyncrun.vim'
@@ -16,6 +16,11 @@ Plug 'junegunn/limelight.vim', { 'on':  'Limelight' }
 Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
 Plug 'pificaria/preto'
 Plug 'lervag/vimtex'
+
+Plug 'preservim/vim-markdown'
+Plug 'jakewvincent/mkdnflow.nvim'
+Plug 'SidOfc/mkdx'
+" Plug 'arthurxavierx/vim-unicoder'
 
 Plug 'davidgranstrom/scnvim', { 'do': { -> scnvim#install() } }
 Plug 'madskjeldgaard/supercollider-h4x-nvim'
@@ -25,13 +30,13 @@ Plug 'nvim-treesitter/nvim-treesitter-refactor'
 
 Plug 'ms-jpq/chadtree', {'branch': 'chad', 'do': 'python3 -m chadtree deps'}
 Plug 'neovim/nvim-lspconfig'
-Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
+Plug 'ms-jpq/coq_nvim', { 'branch': 'coq' }
 Plug 'ms-jpq/coq.artifacts', {'branch': 'artifacts'}
 Plug 'ms-jpq/coq.thirdparty', {'branch': '3p'}
 call plug#end()
 
 " Coq
-let g:coq_settings = { 'auto_start': v:true } 
+let g:coq_settings = { 'auto_start': 'shut-up' }
 lua << EOF
 require("coq_3p") {
   { src = "nvimlua", short_name = "nLUA" },
@@ -122,7 +127,7 @@ EOF
 lua <<EOF
 require'nvim-treesitter.configs'.setup {
 	ensure_installed = {
-		'c', 'cpp', 'go', 'html', 'javascript', 'python', 'rust', 'typescript', 'tsx'
+		'c', 'cpp', 'go', 'html', 'javascript', 'python', 'rust', 'typescript', 'tsx', 'markdown'
 	},
 	highlight = {
 		enable = true,
@@ -225,10 +230,6 @@ let g:is_posix = 1
 set t_Co=256
 colorscheme preto
 
-" Haskell
-let g:haskell_indent_if=4
-let g:haskell_indent_case=4
-
 " Better search options
 " set sw=1
 set is hls ic scs
@@ -245,6 +246,10 @@ cab Q q
 
 " Filetype on
 filetype on
+
+" Haskell
+let g:haskell_indent_if=4
+let g:haskell_indent_case=4
 
 " Eel
 au BufWinEnter,BufRead,BufNewFile *.jsfx set filetype=eel2
@@ -272,49 +277,13 @@ autocmd FileType make setlocal noexpandtab list
 " Ledger
 au BufNewFile,BufRead *.ldg,*.ledger setf ledger 
 
-" YCM
-let g:ycm_global_ycm_extra_conf = '~/.config/nvim/global_extra_conf.py'
-inoremap <expr> <up> pumvisible() ? '<c-e><up>' : '<up>'
-inoremap <expr> <down> pumvisible() ? '<c-e><down>' : '<down>'
-let g:ycm_rust_toolchain_root = $HOME.'/.rustup/toolchains/stable-x86_64-unknown-linux-gnu'
-let g:ycm_key_list_select_completion = ['<C-n>']
-let g:ycm_key_list_previous_completion = ['<C-p>']
-let g:ycm_filetype_blacklist = {
-      \ 'tagbar': 1,
-      \ 'notes': 1,
-      \ 'markdown': 1,
-      \ 'netrw': 1,
-      \ 'unite': 1,
-      \ 'text': 1,
-      \ 'vimwiki': 1,
-      \ 'pandoc': 1,
-      \ 'infolog': 1,
-      \ 'leaderf': 1,
-      \ 'mail': 1
-      \}
-
-" Snips
-let g:UltiSnipsExpandTrigger = '<tab>'
-let g:UltiSnipsJumpForwardTrigger = '<tab>'
+" UltiSnips
+let g:UltiSnipsExpandTrigger = '<c-z>'
+let g:UltiSnipsJumpForwardTrigger = '<c-z>'
 let g:UltiSnipsJumpBackwardTrigger = '<s-tab>'
-" let :g:UltiSnipsSnippetDirectories=['UltiSnips', 'scnvim-data', '~/.vim/UltiSnips']
-let g:UltiSnipsSnippetDirectories=[$HOME.'/.vim/UltiSnips', 'scnvim-data']
-
-" plasticboy/markdown
-" let g:vim_markdown_math=1
-" let g:vim_markdown_folding_disabled = 1
-" let g:vim_markdown_frontmatter = 1
+let g:UltiSnipsSnippetDirectories=[$HOME.'/.config/nvim/UltiSnips', 'scnvim-data']
 
 " Rust
-" YCM KEYBINDINGS
-function! YcmStuff() 
-    nnoremap si :YcmCompleter GoToDefinition<cr>
-    nnoremap sk :YcmRestartServer<cr>
-    nnoremap <F1> :YcmCompleter FixIt<cr>
-    nnoremap K :YcmCompleter GetDoc<cr>
-    nnoremap ; :YcmCompleter GetType<cr>
-endfunction
-
 function! Rusty()
     nnoremap <C-e> :terminal cargo run<cr>
     inoremap <C-e> <esc>:terminal cargo run<cr>
@@ -326,6 +295,8 @@ augroup rust
 	autocmd FileType rust call YcmStuff()
 augroup end
 
+let g:rustfmt_command = "cargo fmt -- "
+
 " Typescript
 autocmd FileType typescript set shiftwidth=2 | set softtabstop=2 | set tabstop=2 | setlocal indentkeys+=0
 autocmd FileType typescriptreact set shiftwidth=2 | set softtabstop=2 | set tabstop=2 | setlocal indentkeys+=0
@@ -333,9 +304,6 @@ autocmd FileType javascript set shiftwidth=2 | set softtabstop=2 | set tabstop=2
 autocmd FileType javascriptreact set shiftwidth=2 | set softtabstop=2 | set tabstop=2 | setlocal indentkeys+=0
 let g:typescript_opfirst='\%([<>=,?^%|*/&]\|\([-:+]\)\1\@!\|!=\|in\%(stanceof\)\=\>\)'
 let g:typescript_indent_disable = 1
-
-" Rust
-let g:rustfmt_command = "cargo fmt -- "
 
 " Latex
 au BufWinEnter,BufRead,BufNewFile *.tex setf tex
@@ -350,6 +318,7 @@ let g:vimtex_compiler_latexmk_engines = {
     \ '_'                : '-xelatex',
     \}
 let g:tex_conceal='abdmg'
+hi clear Conceal
 
 function! TexHighlights()
 	hi! link texItalStyle Underlined
@@ -364,7 +333,7 @@ augroup TexColors
 augroup END
 
 " Conceal
-" au FileType tex,markdown setlocal conceallevel=2
+au FileType tex,markdown setlocal conceallevel=2
 
 " Mouse
 set mouse=a
@@ -375,20 +344,6 @@ autocmd BufRead,BufNewFile *.frag set filetype=cpp
 
 " Julia
 autocmd BufRead,BufNewFile *.ij set filetype=julia
-
-" Markdown-pandoc-preview
-let g:md_pdf_viewer="zathura"
-let g:md_args = "-N --filter ~/.local/bin/pandoc-citeproc --filter ~/waste/repos/01mf02/pandocfilters/defenv.py -H ~/waste/eta/.pandoc/header.tex -f markdown-smart"
-let g:asyncrun_open=1
-
-" vim-pandoc/syntax
-augroup pandoc_syntax
-    au! BufNewFile,BufFilePre,BufRead *.md set filetype=pandoc | set wrap
-augroup END
-let g:pandoc#modules#disabled = ["folding"]
-au Filetype pandoc set expandtab
-let g:pandoc#syntax#flavor#minimized = 1
-let g:pandoc#spell#enabled = 0
 
 " PHP
 autocmd BufRead,BufNewFile *.php filetype plugin indent off
@@ -444,7 +399,7 @@ vnoremap <C-J> :m '>+1<CR>gv=gv
 vnoremap <C-K> :m '<-2<CR>gv=gv
 
 " Startify
-let g:startify_custom_header = ['asdf?']
+" let g:startify_custom_header = ['asdf?']
 
 " OCaml
 let g:opamshare = substitute(system('~/.local/bin/opam var share'),'\n$','','''')
@@ -456,3 +411,54 @@ let g:chadtree_settings = { "options.polling_rate": 6.0 }
 
 " Buffer utility
 nnoremap <C-x><C-d> :bp\|bd #<CR>
+
+" Mkdn
+let g:mkdx#settings     = { 'highlight': { 'enable': 1 },
+                        \ 'enter': { 'shift': 1 },
+                        \ 'links': { 'external': { 'enable': 0 } },
+                        \ 'toc': { 'text': 'TOC', 'update_on_write': 1 },
+                        \ 'fold': { 'enable': 1 } }
+
+" Markdown
+augroup md_kbs
+	function! s:make_note_link(l)
+		let line = split(a:l[1], ':')
+		let ztk_id = l:line[0]
+		let mdlink = "[" . a:l[0] . "](" . ztk_id . ")"
+		return mdlink
+	endfunction
+	autocmd FileType markdown nnoremap <leader>d "=strftime("%Y/%m/%d")<CR>P
+	autocmd FileType markdown nnoremap <leader>t "=strftime("%T")<CR>P
+	autocmd FileType markdown nnoremap <leader>dt "=strftime("%Y/%m/%d %T")<CR>P
+	autocmd FileType markdown nnoremap <leader>hj "=strftime("[%d](%Y-%m-%d.md)")<CR>P
+	autocmd FileType markdown inoremap <expr> <c-l>z fzf#vim#complete({
+	\ 'source':  'rg --no-heading --smart-case  .',
+	\ 'reducer': function('<sid>make_note_link'),
+	\ 'options': '--exact --print-query --multi --reverse --margin 15%,0',
+	\ 'up':    15})
+	"autocmd FileType markdown setlocal textwidth=0
+	autocmd FileType markdown setlocal wrapmargin=0
+	autocmd FileType markdown setlocal linebreak
+	autocmd FileType markdown setlocal nowrap
+	" autocmd FileType markdown set wrap
+	"autocmd FileType markdown set columns=80
+augroup END
+lua<<EOF
+vim.cmd('autocmd FileType markdown set autowriteall')
+require('mkdnflow').setup({
+	perspective = {
+		priority = 'root',
+		fallback = 'current',
+		root_tell = 'index.md',
+	},
+	mappings = {
+		MkdnNewListItem = {'i', '<CR>'}
+	}
+})
+EOF
+
+autocmd BufNewFile,BufRead ~/waste/sync/k/n/* setlocal tw=50
+
+let g:vim_markdown_math = 1
+let g:vim_markdown_folding_disabled = 1
+let g:vim_markdown_frontmatter = 1

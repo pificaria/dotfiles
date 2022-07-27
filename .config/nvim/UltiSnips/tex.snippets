@@ -1,0 +1,243 @@
+snippet clockin
+`!v strftime("%d.%m.%y")`
+endsnippet
+
+global !p
+def math():
+	return vim.eval('vimtex#syntax#in_mathzone()') == '1'
+endglobal
+
+snippet today "Date"
+`date +%F`
+endsnippet
+
+priority 200
+context "math()"
+snippet '(?<!\\)(arcsin|arccos|arctan|arccot|arccsc|arcsec|pi|zeta|int)' "ln" rw
+\\`!p snip.rv = match.group(1)`
+endsnippet
+
+# Basic tex math stuff
+snippet mk "Math" w
+$${1}$$0
+endsnippet
+
+snippet dm "Math" i
+$$${1}$$ $0
+endsnippet
+
+context "math()"
+snippet _ "superscript" i
+_{${VISUAL}$1}$0
+endsnippet
+
+context "math()"
+snippet ! "suberscript" i
+^{${VISUAL}$1}$0
+endsnippet
+
+context "math()"
+snippet ( "parens" i
+\left( ${VISUAL}$1 \right)$0
+endsnippet
+
+context "math()"
+snippet { "set" i
+\left{ ${VISUAL}$1 \right}$0
+endsnippet
+
+context "math()"
+snippet inv "^{-1}" i
+^{-1}
+endsnippet
+
+context "math()"
+snippet // "Fraction" i
+\\frac{${VISUAL}$1}{$2}$0
+endsnippet
+
+snippet ali "aligned" i
+$$\begin{aligned}
+$1
+\end{aligned}$$ $0
+endsnippet
+
+# Hats tildes and blabla
+context "math()" 
+snippet til "Tilda" i
+\\tilde{${VISUAL}$1}$0
+endsnippet
+
+context "math()" 
+snippet hat "Hat" i
+\\hat{${VISUAL}$1}$0
+endsnippet
+
+context "math()" 
+snippet bar "Barra" i
+\\bar{${VISUAL}$1}$0
+endsnippet
+
+context "math()" 
+snippet bb "Boldo" i
+\\mathbb{${VISUAL}$1}$0
+endsnippet
+
+context "math()" 
+snippet cal "Cal" i
+\\mathcal{${VISUAL}$1}$0
+endsnippet
+
+context "math()" 
+snippet rm "Clear" i
+\\mathrm{${VISUAL}$1}$0
+endsnippet
+
+# Base latex environment
+snippet lenv 
+\begin{${1:aligned}}
+$0
+\end{$1}
+endsnippet
+
+# Lower case greek alphabet
+snippet 'a "alpha" i
+\alpha
+endsnippet
+snippet 'b "beta" i
+\beta
+endsnippet
+snippet 'd "delta" i
+\delta
+endsnippet
+snippet 'e "epsilon" i
+\epsilon
+endsnippet
+snippet 'f "phi" i
+\phi
+endsnippet
+snippet 'g "gamma" i
+\gamma
+endsnippet
+snippet 'h "eta" i
+\eta
+endsnippet
+snippet 'i "iota" i
+\iota
+endsnippet
+snippet 'k "kappa" i
+\kappa
+endsnippet
+snippet 'l "lambda" i
+\lambda
+endsnippet
+snippet 'm "mu" i
+\mu
+endsnippet
+snippet 'n "nu" i
+\nu
+endsnippet
+snippet 'o "omicron" i
+\omicron
+endsnippet
+snippet 'p "pi" i
+\pi
+endsnippet
+snippet 'ps "psi" i
+\psi
+endsnippet
+snippet 'r "rho" i
+\rho
+endsnippet
+snippet 's "sigma" i
+\sigma
+endsnippet
+snippet 't "tau" i
+\tau
+endsnippet
+snippet 'th "theta" i
+\theta
+endsnippet
+snippet 'w "omega" i
+\omega
+endsnippet
+snippet 'x "chi" i
+\chi
+endsnippet
+snippet 'y "upsilon" i
+\upsilon
+endsnippet
+snippet 'z "zeta" i
+\zeta
+endsnippet
+
+# Upper case greek alphabet
+snippet 'A "Alpha" i
+\Alpha
+endsnippet
+snippet 'B "Beta" i
+\Beta
+endsnippet
+snippet 'D "Delta" i
+\Delta
+endsnippet
+snippet 'E "Epsilon" i
+\Epsilon
+endsnippet
+snippet 'F "Phi" i
+\Phi
+endsnippet
+snippet 'G "Gamma" i
+\Gamma
+endsnippet
+snippet 'H "Eta" i
+\Eta
+endsnippet
+snippet 'I "Iota" i
+\Iota
+endsnippet
+snippet 'K "Kappa" i
+\Kappa
+endsnippet
+snippet 'L "Lambda" i
+\Lambda
+endsnippet
+snippet 'M "Mu" i
+\Mu
+endsnippet
+snippet 'N "Nu" i
+\Nu
+endsnippet
+snippet 'O "Omicron" i
+\Omicron
+endsnippet
+snippet 'P "Pi" i
+\Pi
+endsnippet
+snippet 'Ps "Psi" i
+\Psi
+endsnippet
+snippet 'R "Rho" i
+\Rho
+endsnippet
+snippet 'S "Sigma" i
+\Sigma
+endsnippet
+snippet 'T "Tau" i
+\Tau
+endsnippet
+snippet 'Th "Theta" i
+\Theta
+endsnippet
+snippet 'W "Omega" i
+\Omega
+endsnippet
+snippet 'X "Chi" i
+\Chi
+endsnippet
+snippet 'Y "Upsilon" i
+\Upsilon
+endsnippet
+snippet 'Z "Zeta" i
+\Zeta
+endsnippet
