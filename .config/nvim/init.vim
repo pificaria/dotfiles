@@ -225,51 +225,6 @@ require"telescope".load_extension("bibtex")
 EOF
 nnoremap <leader>bib <cmd>Telescope bibtex<cr>
 
-" Markdown
-augroup md_kbs
-	autocmd FileType markdown nnoremap <leader>g :Glow<cr>
-augroup END
-lua<<EOF
--- If you have an init.lua
-vim.cmd('autocmd FileType markdown set autowriteall')
-require('mkdnflow').setup({
-perspective = {
-	priority = 'root',
-	fallback = 'current',
-	root_tell = 'index.md',
-	},
-mappings = {
-	MkdnNewListItem = {'i', '<CR>'}
-	}
-})
-EOF
-
-" make_note_link: List -> Str
-" returned string: [Title](YYYYMMDDHH.md)
-function! s:make_note_link(l)
-        " fzf#vim#complete returns a list with all info in index 0
-        " let line = split(a:l[0], ':')
-        " let ztk_id = l:line[0]
-    try
-        " let ztk_title = substitute(l:line[2], '\#\+\s\+', '', 'g')
-catch
-
-        " let ztk_title = substitute(l:line[1], '\#\+\s\+', '', 'g')
-endtry
-        " let mdlink = "[" . ztk_title ."](". ztk_id .")"
-		let line = split(a:l[1], ':')
-		let ztk_id = l:line[0]
-		let mdlink = "[" . a:l[0] . "](" . ztk_id . ")"
-        return mdlink
-endfunction
-
-" mnemonic link zettel
-inoremap <expr> <c-l>z fzf#vim#complete({
-  \ 'source':  'rg --no-heading --smart-case  .',
-  \ 'reducer': function('<sid>make_note_link'),
-  \ 'options': '--exact --print-query --multi --reverse --margin 15%,0',
-  \ 'up':    15})
-
 " Venn
 lua<<EOF
 -- venn.nvim: enable or disable keymappings
@@ -294,9 +249,6 @@ end
 -- toggle keymappings for venn using <leader>v
 vim.api.nvim_set_keymap('n', '<leader>v', ":lua Toggle_venn()<CR>", { noremap = true})
 EOF
-
-" Nabla
-nnoremap <leader>p :lua require("nabla").popup()<CR> " Customize with popup({border = ...})  : `single` (default), `double`, `rounded`
 
 " Glow
 lua<<EOF
