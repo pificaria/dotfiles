@@ -92,7 +92,7 @@ set listchars=tab:>-
 " set textwidth=0
 " set wrapmargin=0
 " set wrap
-set linebreak # (optional - breaks by word rather than character)
+set linebreak 
 
 " Folding
 set foldmethod=syntax
