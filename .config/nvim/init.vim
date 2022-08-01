@@ -164,12 +164,6 @@ require("coq_3p") {
 }
 EOF
 
-" Time insertion
-nnoremap <leader>d "=strftime("%Y/%m/%d")<CR>P
-nnoremap <leader>t "=strftime("%T")<CR>P
-nnoremap <leader>dt "=strftime("%Y/%m/%d %T")<CR>P
-nnoremap <leader>hj "=strftime("[%d](%Y-%m-%d.md)")<CR>P
-
 " LSP
 lua<<EOF
 vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
@@ -274,10 +268,6 @@ augroup md_kbs
 		let mdlink = "[" . a:l[0] . "](" . ztk_id . ")"
 		return mdlink
 	endfunction
-	autocmd FileType markdown nnoremap <leader>d "=strftime("%Y/%m/%d")<CR>P
-	autocmd FileType markdown nnoremap <leader>t "=strftime("%T")<CR>P
-	autocmd FileType markdown nnoremap <leader>dt "=strftime("%Y/%m/%d %T")<CR>P
-	autocmd FileType markdown nnoremap <leader>hj "=strftime("[%d](%Y-%m-%d.md)")<CR>P
 	autocmd FileType markdown inoremap <expr> <c-l>z fzf#vim#complete({
 	\ 'source':  'rg --no-heading --smart-case  .',
 	\ 'reducer': function('<sid>make_note_link'),
@@ -287,8 +277,8 @@ augroup md_kbs
 	autocmd FileType markdown setlocal wrapmargin=0
 	autocmd FileType markdown setlocal linebreak
 	autocmd FileType markdown setlocal nowrap
-	" autocmd FileType markdown set wrap
-	"autocmd FileType markdown set columns=80
+	autocmd FileType markdown setlocal spell spelllang=pt_br,en_us,de_de,fr
+	autocmd FileType markdown setlocal spellcapcheck=
 augroup END
 lua<<EOF
 vim.cmd('autocmd FileType markdown set autowriteall')
@@ -299,7 +289,11 @@ require('mkdnflow').setup({
 		root_tell = 'index.md',
 	},
 	mappings = {
-		MkdnNewListItem = {'i', '<CR>'}
+		MkdnNewListItem = {'i', '<CR>'},
+		MkdnTableNewRowBelow = {'n', '<leader>ir'},
+		MkdnTableNewRowAbove = {'n', '<leader>iR'},
+		MkdnTableNewColAfter = {'n', '<leader>ic'},
+		MkdnTableNewColBefore = {'n', '<leader>iC'},
 	}
 })
 EOF
