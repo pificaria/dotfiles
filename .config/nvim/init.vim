@@ -427,10 +427,6 @@ augroup md_kbs
 		let mdlink = "[" . a:l[0] . "](" . ztk_id . ")"
 		return mdlink
 	endfunction
-	autocmd FileType markdown nnoremap <leader>d "=strftime("%Y/%m/%d")<CR>P
-	autocmd FileType markdown nnoremap <leader>t "=strftime("%T")<CR>P
-	autocmd FileType markdown nnoremap <leader>dt "=strftime("%Y/%m/%d %T")<CR>P
-	autocmd FileType markdown nnoremap <leader>hj "=strftime("[%d](%Y-%m-%d.md)")<CR>P
 	autocmd FileType markdown inoremap <expr> <c-l>z fzf#vim#complete({
 	\ 'source':  'rg --no-heading --smart-case  .',
 	\ 'reducer': function('<sid>make_note_link'),
@@ -452,7 +448,11 @@ require('mkdnflow').setup({
 		root_tell = 'index.md',
 	},
 	mappings = {
-		MkdnNewListItem = {'i', '<CR>'}
+		MkdnNewListItem = {'i', '<CR>'},
+		MkdnTableNewRowBelow = {'n', '<leader>ir'},
+		MkdnTableNewRowAbove = {'n', '<leader>iR'},
+		MkdnTableNewColAfter = {'n', '<leader>ic'},
+		MkdnTableNewColBefore = {'n', '<leader>iC'},
 	}
 })
 EOF
