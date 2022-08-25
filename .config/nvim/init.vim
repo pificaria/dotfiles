@@ -4,23 +4,32 @@ Plug 'SirVer/ultisnips'
 Plug 'andymass/vim-matchup'
 Plug 'nvim-lua/plenary.nvim'
 
+Plug 'pificaria/preto'
+Plug 'pificaria/vim-sunbather'
+
+Plug 'rmagatti/auto-session'
+
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
+Plug 'vijaymarupudi/nvim-fzf'
 
 Plug 'nvim-telescope/telescope.nvim'
 Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
+Plug 'chentoast/marks.nvim'
 
 Plug 'fhill2/telescope-ultisnips.nvim'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'junegunn/limelight.vim', { 'on':  'Limelight' }
 Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
-Plug 'pificaria/preto'
 Plug 'lervag/vimtex'
 
-Plug 'preservim/vim-markdown'
+" Plug 'preservim/vim-markdown'
+Plug 'ixru/nvim-markdown'
 Plug 'jakewvincent/mkdnflow.nvim'
 Plug 'SidOfc/mkdx'
 " Plug 'arthurxavierx/vim-unicoder'
+
+" Plug 'itchyny/calendar.vim'
 
 Plug 'davidgranstrom/scnvim', { 'do': { -> scnvim#install() } }
 Plug 'madskjeldgaard/supercollider-h4x-nvim'
@@ -33,6 +42,8 @@ Plug 'neovim/nvim-lspconfig'
 Plug 'ms-jpq/coq_nvim', { 'branch': 'coq' }
 Plug 'ms-jpq/coq.artifacts', {'branch': 'artifacts'}
 Plug 'ms-jpq/coq.thirdparty', {'branch': '3p'}
+
+Plug 'akinsho/toggleterm.nvim', {'tag' : 'v2.*'}
 call plug#end()
 
 " Coq
@@ -127,14 +138,33 @@ EOF
 lua <<EOF
 require'nvim-treesitter.configs'.setup {
 	ensure_installed = {
-		'c', 'cpp', 'go', 'html', 'javascript', 'python', 'rust', 'typescript', 'tsx', 'markdown'
+		'bibtex', 
+		'comment', 
+		'c', 
+		'cpp', 
+		'go', 
+		'html', 
+		'javascript', 
+		'python', 
+		'rust',
+		'ocaml',
+		'typescript', 
+		'tsx', 
+		'css',
+		'html',
+		'latex',
+		'markdown',
+		'markdown_inline',
+		'lua',
+		'supercollider',
 	},
 	highlight = {
 		enable = true,
+		disable = { 'markdown' },
 		additional_vim_regex_highlighting = true,
 	},
 	indent = {
-		enable = true,
+		enable = false,
 	},
 	matchup = { enable = true, },
 	refactor = {
@@ -173,6 +203,10 @@ set nu
 set cursorline
 syn on
 set inccommand=nosplit
+set whichwrap+=<,>,h,l
+
+" Terminal colors
+set termguicolors
 
 " Define how many spaces tab will use, and the maximum line width
 set shiftwidth=4
@@ -227,8 +261,8 @@ filetype plugin indent on
 let g:is_posix = 1
 
 " Enable colors and set theme
-set t_Co=256
-colorscheme preto
+" set t_Co=256
+colorscheme sunbather
 
 " Better search options
 " set sw=1
@@ -303,7 +337,7 @@ autocmd FileType typescriptreact set shiftwidth=2 | set softtabstop=2 | set tabs
 autocmd FileType javascript set shiftwidth=2 | set softtabstop=2 | set tabstop=2 | setlocal indentkeys+=0
 autocmd FileType javascriptreact set shiftwidth=2 | set softtabstop=2 | set tabstop=2 | setlocal indentkeys+=0
 let g:typescript_opfirst='\%([<>=,?^%|*/&]\|\([-:+]\)\1\@!\|!=\|in\%(stanceof\)\=\>\)'
-let g:typescript_indent_disable = 1
+" let g:typescript_indent_disable = 1
 
 " Latex
 au BufWinEnter,BufRead,BufNewFile *.tex setf tex
@@ -413,13 +447,12 @@ let g:chadtree_settings = { "options.polling_rate": 6.0 }
 nnoremap <C-x><C-d> :bp\|bd #<CR>
 
 " Mkdn
-let g:mkdx#settings     = { 'highlight': { 'enable': 1 },
-                        \ 'enter': { 'shift': 1 },
-                        \ 'links': { 'external': { 'enable': 0 } },
-                        \ 'toc': { 'text': 'TOC', 'update_on_write': 1 },
-                        \ 'fold': { 'enable': 1 } }
+let g:mkdx#settings = { 'highlight': { 'enable': 1 },
+			\ 'enter': { 'shift': 1 },
+			\ 'links': { 'external': { 'enable': 0 } },
+			\ 'toc': { 'text': 'TOC', 'update_on_write': 1 },
+			\ 'fold': { 'enable': 1 } }
 
-" Markdown
 augroup md_kbs
 	function! s:make_note_link(l)
 		let line = split(a:l[1], ':')
@@ -427,6 +460,7 @@ augroup md_kbs
 		let mdlink = "[" . a:l[0] . "](" . ztk_id . ")"
 		return mdlink
 	endfunction
+	autocmd FileType markdown vnoremap <c-l>s :s/\s\{2,}/ /g<cr>:noh<cr>
 	autocmd FileType markdown inoremap <expr> <c-l>z fzf#vim#complete({
 	\ 'source':  'rg --no-heading --smart-case  .',
 	\ 'reducer': function('<sid>make_note_link'),
@@ -436,7 +470,7 @@ augroup md_kbs
 	autocmd FileType markdown setlocal wrapmargin=0
 	autocmd FileType markdown setlocal linebreak
 	autocmd FileType markdown setlocal nowrap
-	" autocmd FileType markdown set wrap
+	autocmd FileType markdown setlocal wrap
 	"autocmd FileType markdown set columns=80
 augroup END
 lua<<EOF
@@ -453,7 +487,13 @@ require('mkdnflow').setup({
 		MkdnTableNewRowAbove = {'n', '<leader>iR'},
 		MkdnTableNewColAfter = {'n', '<leader>ic'},
 		MkdnTableNewColBefore = {'n', '<leader>iC'},
-	}
+	},
+	to_do = {
+		symbols = {' ', '-', 'x'},
+		not_started = ' ',
+		in_progress = '-',
+		complete = 'x',
+	},
 })
 EOF
 
@@ -462,3 +502,203 @@ autocmd BufNewFile,BufRead ~/waste/sync/k/n/* setlocal tw=50
 let g:vim_markdown_math = 1
 let g:vim_markdown_folding_disabled = 1
 let g:vim_markdown_frontmatter = 1
+
+fun! s:MkdxRemap()
+    nmap <buffer><silent> >> <Plug>(mkdx-indent)
+    nmap <buffer><silent> << <Plug>(mkdx-unindent)
+    vmap <buffer><silent> >> <Plug>(mkdx-indent)
+    vmap <buffer><silent> << <Plug>(mkdx-unindent)
+endfun
+augroup Mkdx
+    au!
+    au FileType markdown,mkdx call s:MkdxRemap()
+augroup END
+
+let g:mkdx#settings = {
+\ 'tab': {
+\    'enable': 0
+\ }
+\ }
+
+fun! s:MkdxGoToHeader(header)
+    " given a line: '  84: # Header'
+    " this will match the number 84 and move the cursor to the start of that line
+    call cursor(str2nr(get(matchlist(a:header, ' *\([0-9]\+\)'), 1, '')), 1)
+endfun
+
+fun! s:MkdxFormatHeader(key, val)
+    let text = get(a:val, 'text', '')
+    let lnum = get(a:val, 'lnum', '')
+
+    " if the text is empty or no lnum is present, return the empty string
+    if (empty(text) || empty(lnum)) | return text | endif
+
+    " We can't jump to it if we dont know the line number so that must be present in the outpt line.
+    " We also add extra padding up to 4 digits, so I hope your markdown files don't grow beyond 99.9k lines ;)
+    return repeat(' ', 4 - strlen(lnum)) . lnum . ': ' . text
+endfun
+
+fun! s:MkdxFzfQuickfixHeaders()
+    " passing 0 to mkdx#QuickfixHeaders causes it to return the list instead of opening the quickfix list
+    " this allows you to create a 'source' for fzf.
+    " first we map each item (formatted for quickfix use) using the function MkdxFormatHeader()
+    " then, we strip out any remaining empty headers.
+    let headers = filter(map(mkdx#QuickfixHeaders(0), function('<SID>MkdxFormatHeader')), 'v:val != ""')
+
+    " run the fzf function with the formatted data and as a 'sink' (action to execute on selected entry)
+    " supply the MkdxGoToHeader() function which will parse the line, extract the line number and move the cursor to it.
+    call fzf#run(fzf#wrap(
+            \ {'source': headers, 'sink': function('<SID>MkdxGoToHeader') }
+          \ ))
+endfun
+
+" finally, map it -- in this case, I mapped it to overwrite the default action for toggling quickfix (<PREFIX>I)
+nnoremap <silent> <Leader>I :call <SID>MkdxFzfQuickfixHeaders()<Cr>
+
+" Markdown footnotes
+"" Taken from vim-pandoc/vim-markdownfootnotes.
+if !exists('g:vimfootnotenumber')
+	let g:vimfootnotenumber = 0
+	let g:vimmkdnreferencenumber = 0
+endif
+
+if !exists('g:vimfootnotelinebreak')
+	let g:vimfootnotelinebreak = 0
+endif
+
+fun! s:AddMkdnFootnotes(appendcmd) abort
+    " save current position
+    let s:cur_pos =  getpos('.')
+    " Define search pattern for footnote definitions
+    let l:pattern = '\v^\[\^(.+)\]:'
+    let l:flags = 'eW'
+    call cursor(1,1)
+    " get first match
+    let g:vimfootnotenumber = search(l:pattern, l:flags)
+    if (g:vimfootnotenumber != 0)
+        let l:temp = 1
+        " count subsequent matches
+        while search(l:pattern, l:flags) != 0
+            let l:temp += 1
+        endwhile
+        let g:vimfootnotenumber = l:temp + 1
+        " Return to position
+        call setpos('.', s:cur_pos)
+        let g:vimfootnotemark = g:vimfootnotenumber
+    else
+        let g:vimfootnotenumber = 1
+        " Return to position
+        call setpos('.', s:cur_pos)
+        let g:vimfootnotemark = g:vimfootnotenumber
+    endif
+    let cr = g:vimfootnotelinebreak ? "\<cr>" : ''
+
+    exe 'normal! '.a:appendcmd.'[^'.g:vimfootnotemark."]\<esc>"
+    :below 4split
+    normal! G
+    exe "normal! o\<cr>[^".g:vimfootnotemark.']: '
+    startinsert!
+endfunction
+
+fun! s:AddMkdnReference(appendcmd) abort
+    " save current position
+    let s:cur_pos =  getpos('.')
+    " Define search pattern for footnote definitions
+    let l:pattern = '\v^\[(.+)\]:'
+    let l:flags = 'eW'
+    call cursor(1,1)
+    " get first match
+    let g:vimmkdnreferencenumber = search(l:pattern, l:flags)
+    if (g:vimmkdnreferencenumber != 0)
+        let l:temp = 1
+        " count subsequent matches
+        while search(l:pattern, l:flags) != 0
+            let l:temp += 1
+        endwhile
+        let g:vimmkdnreferencenumber = l:temp + 1
+        " Return to position
+        call setpos('.', s:cur_pos)
+        let g:vimfootnotemark = g:vimmkdnreferencenumber
+    else
+        let g:vimmkdnreferencenumber = 1
+        " Return to position
+        call setpos('.', s:cur_pos)
+        let g:vimfootnotemark = g:vimmkdnreferencenumber
+    endif
+    let cr = g:vimfootnotelinebreak ? "\<cr>" : ''
+
+    exe 'normal! '.a:appendcmd.'['.g:vimfootnotemark."]\<esc>"
+    :below 4split
+    normal! G
+    exe "normal! o\<cr>[".g:vimfootnotemark.']: '
+    startinsert!
+endfunction
+
+inoremap <silent> ^^ <C-o>:<c-u>call <SID>AddMkdnFootnotes('a')<CR>
+inoremap <silent> ^r <C-o>:<c-u>call <SID>AddMkdnReference('a')<CR>
+nnoremap <silent> <Leader>fn :<c-u>call <SID>AddMkdnFootnotes('a')<CR>
+
+" fzf-bibtex
+let $FZF_BIBTEX_CACHEDIR = $HOME.'/.cache/fzf-bibtex/'
+let $FZF_BIBTEX_SOURCES = $HOME.'/waste/bib/.cit/'
+
+function! s:bibtex_cite_sink(lines)
+    let r=system($HOME."/go/bin/bibtex-cite ", a:lines)
+    execute ':normal! a' . r
+endfunction
+
+function! s:bibtex_markdown_sink(lines)
+    let r=system($HOME."/go/bin/bibtex-markdown ", a:lines)
+    execute ':normal! a' . r
+endfunction
+
+nnoremap <silent> <leader>c :call fzf#run({
+                        \ 'source': $HOME.'/go/bin/bibtex-ls',
+                        \ 'sink*': function('<sid>bibtex_cite_sink'),
+                        \ 'up': '40%',
+                        \ 'options': '--ansi --layout=reverse-list --multi --prompt "Cite> "'})<CR>
+
+nnoremap <silent> <leader>m :call fzf#run({
+                        \ 'source': $HOME.'/go/bin/bibtex-ls',
+                        \ 'sink*': function('<sid>bibtex_markdown_sink'),
+                        \ 'up': '40%',
+                        \ 'options': '--ansi --layout=reverse-list --multi --prompt "Markdown> "'})<CR>
+
+
+function! Bibtex_ls()
+  let bibfiles = (
+      \ globpath('.', '*.bib', v:true, v:true)
+      \ )
+  let bibfiles = join(bibfiles, ' ')
+  let source_cmd = $HOME.'/go/bin/bibtex-ls '.bibfiles
+  return source_cmd
+endfunction
+
+function! s:bibtex_cite_sink_insert(lines)
+    let r=system($HOME."/go/bin/bibtex-cite ", a:lines)
+    execute ':normal! a' . r
+    call feedkeys('a', 'n')
+endfunction
+
+inoremap <silent> @@ <c-g>u<c-o>:call fzf#run({
+                        \ 'source': Bibtex_ls(),
+                        \ 'sink*': function('<sid>bibtex_cite_sink_insert'),
+                        \ 'up': '40%',
+                        \ 'options': '--ansi --layout=reverse-list --multi --prompt "Cite> "'})<CR>
+
+" Auto-session
+lua<<EOF
+require('auto-session').setup({
+	auto_save_enabled=false,
+	log_level='error',
+	auto_session_use_git_branch=true,
+})
+EOF
+
+" Toggle term
+lua<<EOF
+require("toggleterm").setup{
+	open_mapping = [[<c-\>]],
+	terminal_mappings = false,
+}
+EOF
