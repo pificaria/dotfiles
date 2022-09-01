@@ -1,8 +1,8 @@
 " Plugins
 call plug#begin(stdpath('data') . '/plugged')
-Plug 'SirVer/ultisnips'
 Plug 'andymass/vim-matchup'
 Plug 'nvim-lua/plenary.nvim'
+Plug 'L3MON4D3/LuaSnip'
 
 Plug 'pificaria/preto'
 Plug 'pificaria/vim-sunbather'
@@ -19,45 +19,131 @@ Plug 'chentoast/marks.nvim'
 
 Plug 'fhill2/telescope-ultisnips.nvim'
 Plug 'skywind3000/asyncrun.vim'
-Plug 'junegunn/limelight.vim', { 'on':  'Limelight' }
-Plug 'junegunn/goyo.vim', { 'on': 'Goyo' }
 Plug 'lervag/vimtex'
 
 " Plug 'preservim/vim-markdown'
 Plug 'ixru/nvim-markdown'
 Plug 'jakewvincent/mkdnflow.nvim'
 Plug 'SidOfc/mkdx'
-" Plug 'arthurxavierx/vim-unicoder'
+Plug 'Pocco81/true-zen.nvim'
+Plug 'kana/vim-textobj-user'
+Plug 'preservim/vim-textobj-quote'
+Plug 'preservim/vim-textobj-sentence'
 
-" Plug 'itchyny/calendar.vim'
+Plug 'ggandor/leap.nvim'
+Plug 'kevinhwang91/nvim-hlslens'
+Plug 'kevinhwang91/nvim-bqf'
 
-Plug 'davidgranstrom/scnvim', { 'do': { -> scnvim#install() } }
+Plug 'davidgranstrom/scnvim'
 Plug 'madskjeldgaard/supercollider-h4x-nvim'
+Plug 'madskjeldgaard/fzf-sc'
 
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'nvim-treesitter/nvim-treesitter-refactor'
 
 Plug 'ms-jpq/chadtree', {'branch': 'chad', 'do': 'python3 -m chadtree deps'}
 Plug 'neovim/nvim-lspconfig'
-Plug 'ms-jpq/coq_nvim', { 'branch': 'coq' }
-Plug 'ms-jpq/coq.artifacts', {'branch': 'artifacts'}
-Plug 'ms-jpq/coq.thirdparty', {'branch': '3p'}
+Plug 'folke/trouble.nvim'
+
+Plug 'hrsh7th/cmp-nvim-lsp'
+Plug 'quangnguyen30192/cmp-nvim-tags'
+Plug 'hrsh7th/cmp-buffer'
+Plug 'hrsh7th/cmp-path'
+Plug 'hrsh7th/cmp-cmdline'
+Plug 'saadparwaiz1/cmp_luasnip'
+Plug 'kdheepak/cmp-latex-symbols'
+Plug 'hrsh7th/nvim-cmp'
 
 Plug 'akinsho/toggleterm.nvim', {'tag' : 'v2.*'}
 call plug#end()
 
-" Coq
-let g:coq_settings = { 'auto_start': 'shut-up' }
-lua << EOF
-require("coq_3p") {
-  { src = "nvimlua", short_name = "nLUA" },
-  { src = "vimtex", short_name = "vTEX" },
-}
+" Cmp
+set completeopt=menu,menuone,noselect
+lua <<EOF
+
+local has_words_before = function()
+  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
+  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+end
+-- Setup nvim-cmp.
+local cmp = require'cmp'
+local luasnip = require'luasnip'
+
+cmp.setup({
+	snippet = {
+		expand = function(args)
+		require('luasnip').lsp_expand(args.body) 
+		end,
+	},  
+	window = {
+		-- completion = cmp.config.window.bordered(),
+		-- documentation = cmp.config.window.bordered(),
+	},
+	mapping = cmp.mapping.preset.insert({
+		['<C-b>'] = cmp.mapping.scroll_docs(-4),
+		['<C-f>'] = cmp.mapping.scroll_docs(4),
+		['<C-Space>'] = cmp.mapping.complete(),
+		['<C-e>'] = cmp.mapping.abort(),
+		['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+		["<Tab>"] = cmp.mapping(function(fallback)
+		  if cmp.visible() then
+			cmp.select_next_item()
+		  elseif luasnip.expand_or_jumpable() then
+			luasnip.expand_or_jump()
+		  elseif has_words_before() then
+			cmp.complete()
+		  else
+			fallback()
+		  end
+		end, { "i", "s" }),
+		["<S-Tab>"] = cmp.mapping(function(fallback)
+		  if cmp.visible() then
+			cmp.select_prev_item()
+		  elseif luasnip.jumpable(-1) then
+			luasnip.jump(-1)
+		  else
+			fallback()
+		  end
+		end, { "i", "s" }),
+	}),
+	sources = cmp.config.sources({
+		{ name = 'nvim_lsp' },
+		{ name = 'tags' },
+		{ name = 'luasnip' }, 
+		{ name = 'latex_symbols' },
+	})
+})
+
+  cmp.setup.filetype('gitcommit', {
+	  sources = cmp.config.sources({
+		  { name = 'cmp_git' }, 
+	  })
+  })
+
+  cmp.setup.filetype('sh', {
+	  sources = cmp.config.sources({
+		{ name = 'path' },
+	  })
+  })
+
+  cmp.setup.cmdline('/', {
+	  mapping = cmp.mapping.preset.cmdline(),
+	  sources = {
+		  { name = 'buffer' }
+	  }
+  })
+
+  cmp.setup.cmdline(':', {
+	  mapping = cmp.mapping.preset.cmdline(),
+	  sources = cmp.config.sources({
+		  { name = 'path' }
+	  }, {
+		  { name = 'cmdline' }
+	  })
+	})
 EOF
 
-" Setup lspconfig.
-" Use an on_attach function to only map the following keys
-" after the language server attaches to the current buffer
+" Lspconfig.
 lua<<EOF
 vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
     vim.lsp.diagnostic.on_publish_diagnostics, {
@@ -103,14 +189,15 @@ local on_attach = function(client, bufnr)
   buf_set_keymap('n', '<leader>f', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
 end
 
-local coq = require("coq").lsp_ensure_capabilities(vim.lsp.protocol.make_client_capabilities())
+local capabilities = require('cmp_nvim_lsp').update_capabilities(vim.lsp.protocol.make_client_capabilities())
 require'lspconfig'.gopls.setup {
   on_attach = on_attach,
   capabilities = capabilities
 }
 require'lspconfig'.tsserver.setup {
   on_attach = on_attach,
-  capabilities = capabilities
+  capabilities = capabilities,
+  flags = {allow_incremental_sync = true, debounce_text_changes = 500}
 }
 require'lspconfig'.clangd.setup {
   on_attach = on_attach,
@@ -130,7 +217,8 @@ require'lspconfig'.rust_analyzer.setup{
     		["allTargets"] = "false"
   	      }
       }
-  }
+  },
+  flags = {allow_incremental_sync = true, debounce_text_changes = 500},
 }
 EOF
 
@@ -160,7 +248,7 @@ require'nvim-treesitter.configs'.setup {
 	},
 	highlight = {
 		enable = true,
-		disable = { 'markdown' },
+		-- disable = { 'markdown' },
 		additional_vim_regex_highlighting = true,
 	},
 	indent = {
@@ -204,6 +292,7 @@ set cursorline
 syn on
 set inccommand=nosplit
 set whichwrap+=<,>,h,l
+filetype on
 
 " Terminal colors
 set termguicolors
@@ -244,7 +333,7 @@ nnoremap <expr> gp '`[' . strpart(getregtype(), 0, 1) . '`]'
 set laststatus=2
 set statusline=\ %n\ %M\ %R\ %<%{mode()}\ %<%f\ %=%{strftime(\"%d.%m\ %H:%M\")}\;\ %c\,\ %l\/%L\ %Y%W\ 
 
-" Deactivate autoindent to paste
+" Pastetoggle key
 set pastetoggle=<F2>
 
 " Expand %% to pwd 
@@ -261,7 +350,6 @@ filetype plugin indent on
 let g:is_posix = 1
 
 " Enable colors and set theme
-" set t_Co=256
 colorscheme sunbather
 
 " Better search options
@@ -277,9 +365,6 @@ cab Wq wq
 cab wQ wq
 cab WQ wq
 cab Q q
-
-" Filetype on
-filetype on
 
 " Haskell
 let g:haskell_indent_if=4
@@ -311,26 +396,6 @@ autocmd FileType make setlocal noexpandtab list
 " Ledger
 au BufNewFile,BufRead *.ldg,*.ledger setf ledger 
 
-" UltiSnips
-let g:UltiSnipsExpandTrigger = '<c-z>'
-let g:UltiSnipsJumpForwardTrigger = '<c-z>'
-let g:UltiSnipsJumpBackwardTrigger = '<s-tab>'
-let g:UltiSnipsSnippetDirectories=[$HOME.'/.config/nvim/UltiSnips', 'scnvim-data']
-
-" Rust
-function! Rusty()
-    nnoremap <C-e> :terminal cargo run<cr>
-    inoremap <C-e> <esc>:terminal cargo run<cr>
-endfunction 
-
-augroup rust
-    autocmd!
-  "  autocmd FileType rust call Rusty()
-	autocmd FileType rust call YcmStuff()
-augroup end
-
-let g:rustfmt_command = "cargo fmt -- "
-
 " Typescript
 autocmd FileType typescript set shiftwidth=2 | set softtabstop=2 | set tabstop=2 | setlocal indentkeys+=0
 autocmd FileType typescriptreact set shiftwidth=2 | set softtabstop=2 | set tabstop=2 | setlocal indentkeys+=0
@@ -343,7 +408,6 @@ let g:typescript_opfirst='\%([<>=,?^%|*/&]\|\([-:+]\)\1\@!\|!=\|in\%(stanceof\)\
 au BufWinEnter,BufRead,BufNewFile *.tex setf tex
 au FileType tex setlocal wrap
 let g:tex_flavor='latex'
-" let g:vimtex_view_method='zathura'
 let g:vimtex_view_enabled = 0
 let g:vimtex_view_general_viewer = 'zathura'
 let g:vimtex_quickfix_mode=2
@@ -395,15 +459,6 @@ let g:clang_format#code_style = "google"
 let g:matchup_override_vimtex = 1
 let g:matchup_matchparen_deferred = 1
 
-" jsx-pretty
-let g:vim_jsx_pretty_disable_tsx = 1
-
-" Goyo
-autocmd! User GoyoEnter Limelight
-autocmd! User GoyoLeave Limelight!
-nmap <Leader>g :Goyo<CR>
-nmap <Leader>l :Limelight!!<CR>
-
 " Terminal mode
 nmap <Leader>tv :vsplit term://bash<CR>
 nmap <Leader>ts :split term://bash<CR>
@@ -417,12 +472,55 @@ augroup scnvim_settings
 	autocmd FileType supercollider nmap <Leader>S :SCNvimStop<CR>
 augroup END
 
-let g:scnvim_scdoc = 1
-let g:scnvim_scdoc_render_prg = '~/.local/bin/pandoc'
-let g:scnvim_scdoc_render_args = '% --from html --to plain -o %'
-let g:scnvim_postwin_orientation = 'h'
-let g:scnvim_postwin_size = 5
 autocmd filetype supercollider,scnvim,scdoc,supercollider.help lua require'supercollider-h4x'.setup()
+
+lua << EOF
+local scnvim = require 'scnvim'
+local map = scnvim.map
+local map_expr = scnvim.map_expr
+scnvim.setup {
+  keymaps = {
+    ['<M-e>'] = map('editor.send_line', {'i', 'n'}),
+    ['<C-e>'] = {
+      map('editor.send_block', {'i', 'n'}),
+      map('editor.send_selection', 'x'),
+    },
+    ['<CR>'] = map('postwin.toggle'),
+    ['<M-CR>'] = map('postwin.toggle', 'i'),
+    ['<M-L>'] = map('postwin.clear', {'n', 'i'}),
+    ['<C-k>'] = map('signature.show', {'n', 'i'}),
+    ['<F12>'] = map('sclang.hard_stop', {'n', 'x', 'i'}),
+    ['<leader>st'] = map('sclang.start'),
+    ['<leader>sk'] = map('sclang.recompile'),
+    ['<F1>'] = map_expr('s.boot'),
+    ['<F2>'] = map_expr('s.meter'),
+  },
+  editor = {
+    highlight = {
+      color = 'IncSearch',
+    },
+  },
+  postwin = {
+    float = {
+      enabled = true,
+    },
+  },
+  documentation = {
+	  cmd = os.getenv("HOME")..'/.local/bin/pandoc',
+	  keymaps = true,
+  },
+  snippet = {
+	engine = {
+		name = 'luasnip',
+		options = {
+			descriptions = true,
+		},
+	}
+  }
+}
+
+scnvim.load_extension('fzf-sc')
+EOF
 
 " Moveção de linha
 nnoremap <C-J> :m .+1<CR>==
@@ -431,9 +529,6 @@ inoremap <C-J> <Esc>:m .+1<CR>==gi
 inoremap <C-K> <Esc>:m .-2<CR>==gi
 vnoremap <C-J> :m '>+1<CR>gv=gv
 vnoremap <C-K> :m '<-2<CR>gv=gv
-
-" Startify
-" let g:startify_custom_header = ['asdf?']
 
 " OCaml
 let g:opamshare = substitute(system('~/.local/bin/opam var share'),'\n$','','''')
@@ -446,9 +541,11 @@ let g:chadtree_settings = { "options.polling_rate": 6.0 }
 " Buffer utility
 nnoremap <C-x><C-d> :bp\|bd #<CR>
 
-" Mkdn
+" Markdown
+let g:vim_markdown_no_default_key_mappings = 1
 let g:mkdx#settings = { 'highlight': { 'enable': 1 },
 			\ 'enter': { 'shift': 1 },
+			\ 'tab': { 'enable': 0 },
 			\ 'links': { 'external': { 'enable': 0 } },
 			\ 'toc': { 'text': 'TOC', 'update_on_write': 1 },
 			\ 'fold': { 'enable': 1 } }
@@ -466,11 +563,14 @@ augroup md_kbs
 	\ 'reducer': function('<sid>make_note_link'),
 	\ 'options': '--exact --print-query --multi --reverse --margin 15%,0',
 	\ 'up':    15})
-	"autocmd FileType markdown setlocal textwidth=0
+	autocmd FileType markdown setlocal textwidth=0
 	autocmd FileType markdown setlocal wrapmargin=0
 	autocmd FileType markdown setlocal linebreak
 	autocmd FileType markdown setlocal nowrap
 	autocmd FileType markdown setlocal wrap
+	autocmd FileType markdown setlocal nonumber
+	autocmd FileType markdown inoremap <c-l>c <Esc>vip<CR>:s/­ //eg<CR>vip<CR>:s/\s\{2,}/ /eg<CR>
+	autocmd FileType markdown vnoremap <c-l>c :s/­ //eg<CR>gv<CR>:s/\s\{2,}/ /ge<CR>gv<CR>
 	"autocmd FileType markdown set columns=80
 augroup END
 lua<<EOF
@@ -483,6 +583,10 @@ require('mkdnflow').setup({
 	},
 	mappings = {
 		MkdnNewListItem = {'i', '<CR>'},
+		MkdnNextLink = false,
+        MkdnPrevLink = false,
+		MkdnTableNextCell = false,
+		MkdnTablePrevCell = false,
 		MkdnTableNewRowBelow = {'n', '<leader>ir'},
 		MkdnTableNewRowAbove = {'n', '<leader>iR'},
 		MkdnTableNewColAfter = {'n', '<leader>ic'},
@@ -496,8 +600,6 @@ require('mkdnflow').setup({
 	},
 })
 EOF
-
-autocmd BufNewFile,BufRead ~/waste/sync/k/n/* setlocal tw=50
 
 let g:vim_markdown_math = 1
 let g:vim_markdown_folding_disabled = 1
@@ -517,7 +619,8 @@ augroup END
 let g:mkdx#settings = {
 \ 'tab': {
 \    'enable': 0
-\ }
+\ },
+\ 'gf_on_steroids': 0
 \ }
 
 fun! s:MkdxGoToHeader(header)
@@ -639,32 +742,6 @@ inoremap <silent> ^r <C-o>:<c-u>call <SID>AddMkdnReference('a')<CR>
 nnoremap <silent> <Leader>fn :<c-u>call <SID>AddMkdnFootnotes('a')<CR>
 
 " fzf-bibtex
-let $FZF_BIBTEX_CACHEDIR = $HOME.'/.cache/fzf-bibtex/'
-let $FZF_BIBTEX_SOURCES = $HOME.'/waste/bib/.cit/'
-
-function! s:bibtex_cite_sink(lines)
-    let r=system($HOME."/go/bin/bibtex-cite ", a:lines)
-    execute ':normal! a' . r
-endfunction
-
-function! s:bibtex_markdown_sink(lines)
-    let r=system($HOME."/go/bin/bibtex-markdown ", a:lines)
-    execute ':normal! a' . r
-endfunction
-
-nnoremap <silent> <leader>c :call fzf#run({
-                        \ 'source': $HOME.'/go/bin/bibtex-ls',
-                        \ 'sink*': function('<sid>bibtex_cite_sink'),
-                        \ 'up': '40%',
-                        \ 'options': '--ansi --layout=reverse-list --multi --prompt "Cite> "'})<CR>
-
-nnoremap <silent> <leader>m :call fzf#run({
-                        \ 'source': $HOME.'/go/bin/bibtex-ls',
-                        \ 'sink*': function('<sid>bibtex_markdown_sink'),
-                        \ 'up': '40%',
-                        \ 'options': '--ansi --layout=reverse-list --multi --prompt "Markdown> "'})<CR>
-
-
 function! Bibtex_ls()
   let bibfiles = (
       \ globpath('.', '*.bib', v:true, v:true)
@@ -702,3 +779,191 @@ require("toggleterm").setup{
 	terminal_mappings = false,
 }
 EOF
+
+" Virtual line remappings
+inoremap <down> <c-\><c-o>gj
+inoremap <up> <c-\><c-o>gk
+nnoremap <down> gj
+nnoremap <up> gk
+vnoremap <down> gj
+vnoremap <up> gk
+
+" True zen
+lua<<EOF
+require'true-zen'.setup {
+	modes = {
+		ataraxis = {
+			minimum_writing_area = { width = 80, height = 0.9 },
+		},
+	},
+}
+EOF
+nmap <Leader>g :TZAtaraxis<CR>
+
+" Marks
+lua<<EOF
+require'marks'.setup {
+  -- whether to map keybinds or not. default true
+  default_mappings = true,
+  -- which builtin marks to show. default {}
+  builtin_marks = { ".", "<", ">", "^" },
+  -- whether movements cycle back to the beginning/end of buffer. default true
+  cyclic = true,
+  -- whether the shada file is updated after modifying uppercase marks. default false
+  force_write_shada = false,
+  -- how often (in ms) to redraw signs/recompute mark positions. 
+  -- higher values will have better performance but may cause visual lag, 
+  -- while lower values may cause performance penalties. default 150.
+  refresh_interval = 250,
+  -- sign priorities for each type of mark - builtin marks, uppercase marks, lowercase
+  -- marks, and bookmarks.
+  -- can be either a table with all/none of the keys, or a single number, in which case
+  -- the priority applies to all marks.
+  -- default 10.
+  sign_priority = { lower=10, upper=15, builtin=8, bookmark=20 },
+  -- disables mark tracking for specific filetypes. default {}
+  excluded_filetypes = {},
+  -- marks.nvim allows you to configure up to 10 bookmark groups, each with its own
+  -- sign/virttext. Bookmarks can be used to group together positions and quickly move
+  -- across multiple buffers. default sign is '!@#$%^&*()' (from 0 to 9), and
+  -- default virt_text is "".
+  bookmark_0 = {
+    sign = "⚑",
+    virt_text = "hello world",
+    -- explicitly prompt for a virtual line annotation when setting a bookmark from this group.
+    -- defaults to false.
+    annotate = false,
+  },
+  mappings = {}
+}
+EOF
+
+" textobj
+augroup textobj_sentence
+  autocmd!
+  autocmd FileType markdown call textobj#sentence#init()
+  autocmd FileType textile call textobj#sentence#init()
+augroup END
+
+augroup textobj_quote
+  autocmd!
+  autocmd FileType markdown call textobj#quote#init()
+  autocmd FileType textile call textobj#quote#init()
+  autocmd FileType text call textobj#quote#init({'educate': 0})
+  map <silent> <leader>qc <Plug>ReplaceWithCurly
+  map <silent> <leader>qs <Plug>ReplaceWithStraight
+augroup END
+
+" hlslens
+lua<<EOF
+local kopts = {noremap = true, silent = true}
+
+vim.api.nvim_set_keymap('n', 'n',
+    [[<Cmd>execute('normal! ' . v:count1 . 'n')<CR><Cmd>lua require('hlslens').start()<CR>]],
+    kopts)
+vim.api.nvim_set_keymap('n', 'N',
+    [[<Cmd>execute('normal! ' . v:count1 . 'N')<CR><Cmd>lua require('hlslens').start()<CR>]],
+    kopts)
+vim.api.nvim_set_keymap('n', '*', [[*<Cmd>lua require('hlslens').start()<CR>]], kopts)
+vim.api.nvim_set_keymap('n', '#', [[#<Cmd>lua require('hlslens').start()<CR>]], kopts)
+vim.api.nvim_set_keymap('n', 'g*', [[g*<Cmd>lua require('hlslens').start()<CR>]], kopts)
+vim.api.nvim_set_keymap('n', 'g#', [[g#<Cmd>lua require('hlslens').start()<CR>]], kopts)
+
+vim.api.nvim_set_keymap('n', '<Leader>l', ':noh<CR>', kopts)local kopts = {noremap = true, silent = true}
+
+vim.api.nvim_set_keymap('n', 'n',
+    [[<Cmd>execute('normal! ' . v:count1 . 'n')<CR><Cmd>lua require('hlslens').start()<CR>]],
+    kopts)
+vim.api.nvim_set_keymap('n', 'N',
+    [[<Cmd>execute('normal! ' . v:count1 . 'N')<CR><Cmd>lua require('hlslens').start()<CR>]],
+    kopts)
+vim.api.nvim_set_keymap('n', '*', [[*<Cmd>lua require('hlslens').start()<CR>]], kopts)
+vim.api.nvim_set_keymap('n', '#', [[#<Cmd>lua require('hlslens').start()<CR>]], kopts)
+vim.api.nvim_set_keymap('n', 'g*', [[g*<Cmd>lua require('hlslens').start()<CR>]], kopts)
+vim.api.nvim_set_keymap('n', 'g#', [[g#<Cmd>lua require('hlslens').start()<CR>]], kopts)
+
+vim.api.nvim_set_keymap('n', '<Leader>l', ':noh<CR>', kopts)
+EOF
+
+" Trouble
+lua << EOF
+require'trouble'.setup {
+	icons = false
+}
+vim.api.nvim_set_keymap("n", "<leader>xx", "<cmd>Trouble<cr>",
+  {silent = true, noremap = true}
+)
+vim.api.nvim_set_keymap("n", "<leader>xw", "<cmd>Trouble workspace_diagnostics<cr>",
+  {silent = true, noremap = true}
+)
+vim.api.nvim_set_keymap("n", "<leader>xd", "<cmd>Trouble document_diagnostics<cr>",
+  {silent = true, noremap = true}
+)
+vim.api.nvim_set_keymap("n", "<leader>xl", "<cmd>Trouble loclist<cr>",
+  {silent = true, noremap = true}
+)
+vim.api.nvim_set_keymap("n", "<leader>xq", "<cmd>Trouble quickfix<cr>",
+  {silent = true, noremap = true}
+)
+vim.api.nvim_set_keymap("n", "gR", "<cmd>Trouble lsp_references<cr>",
+  {silent = true, noremap = true}
+)
+EOF
+
+" bqf
+lua<<EOF
+require'bqf'.setup {
+	auto_enable = true,
+	auto_resize_height = true,
+}
+EOF
+
+" Leap
+lua<<EOF
+require('leap').set_default_keymaps()
+EOF
+
+" LuaSnip
+lua<<EOF
+require'luasnip'.setup {
+	snip_env = {
+		s = require("luasnip.nodes.snippet").S,
+		sn = require("luasnip.nodes.snippet").SN,
+		t = require("luasnip.nodes.textNode").T,
+		f = require("luasnip.nodes.functionNode").F,
+		i = require("luasnip.nodes.insertNode").I,
+		c = require("luasnip.nodes.choiceNode").C,
+		d = require("luasnip.nodes.dynamicNode").D,
+		r = require("luasnip.nodes.restoreNode").R,
+		l = require("luasnip.extras").lambda,
+		rep = require("luasnip.extras").rep,
+		p = require("luasnip.extras").partial,
+		m = require("luasnip.extras").match,
+		n = require("luasnip.extras").nonempty,
+		dl = require("luasnip.extras").dynamic_lambda,
+		fmt = require("luasnip.extras.fmt").fmt,
+		fmta = require("luasnip.extras.fmt").fmta,
+		conds = require("luasnip.extras.expand_conditions"),
+		types = require("luasnip.util.types"),
+		events = require("luasnip.util.events"),
+		parse = require("luasnip.util.parser").parse_snippet,
+		ai = require("luasnip.nodes.absolute_indexer"),
+	},
+}
+require'luasnip'.filetype_extend('markdown', { 'tex' })
+require("luasnip.loaders.from_lua").load {
+	paths = './snippets/',
+}
+require("luasnip").add_snippets("supercollider", require("scnvim/utils").get_snippets())
+EOF
+
+imap <silent><expr> <C-z> luasnip#expand_or_jumpable() ? '<Plug>luasnip-expand-or-jump' : '<Tab>' 
+inoremap <silent> <C-x> <cmd>lua require'luasnip'.jump(-1)<Cr>
+snoremap <silent> <C-z> <cmd>lua require('luasnip').jump(1)<Cr>
+snoremap <silent> <C-x> <cmd>lua require('luasnip').jump(-1)<Cr>
+imap <silent><expr> <C-E> luasnip#choice_active() ? '<Plug>luasnip-next-choice' : '<C-E>'
+smap <silent><expr> <C-E> luasnip#choice_active() ? '<Plug>luasnip-next-choice' : '<C-E>'
+command! LuaSnipEdit :lua require("luasnip.loaders").edit_snippet_files()
+
+" Toggle line numbers
+nnoremap <leader>nu :set nu!<CR>
