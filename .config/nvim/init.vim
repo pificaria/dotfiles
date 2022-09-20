@@ -13,11 +13,11 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'vijaymarupudi/nvim-fzf'
 
-Plug 'nvim-telescope/telescope.nvim'
+Plug 'nvim-telescope/telescope.nvim', { 'tag': '0.1.0' }
 Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'make' }
+Plug 'nvim-telescope/telescope-bibtex.nvim'
 Plug 'chentoast/marks.nvim'
 
-Plug 'fhill2/telescope-ultisnips.nvim'
 Plug 'skywind3000/asyncrun.vim'
 Plug 'lervag/vimtex'
 
@@ -29,6 +29,7 @@ Plug 'Pocco81/true-zen.nvim'
 Plug 'kana/vim-textobj-user'
 Plug 'preservim/vim-textobj-quote'
 Plug 'preservim/vim-textobj-sentence'
+Plug 'frabjous/knap'
 
 Plug 'ggandor/leap.nvim'
 Plug 'kevinhwang91/nvim-hlslens'
@@ -40,8 +41,14 @@ Plug 'madskjeldgaard/fzf-sc'
 
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'nvim-treesitter/nvim-treesitter-refactor'
+Plug 'nvim-treesitter/playground'
 
-Plug 'ms-jpq/chadtree', {'branch': 'chad', 'do': 'python3 -m chadtree deps'}
+Plug 'rcarriga/nvim-notify'
+Plug 'MunifTanjim/nui.nvim'
+Plug 'stevearc/dressing.nvim'
+Plug 'nvim-neo-tree/neo-tree.nvim', {'tag': 'v2.x'}
+
+" Plug 'ms-jpq/chadtree', {'branch': 'chad', 'do': 'python3 -m chadtree deps'}
 Plug 'neovim/nvim-lspconfig'
 Plug 'folke/trouble.nvim'
 
@@ -50,6 +57,7 @@ Plug 'quangnguyen30192/cmp-nvim-tags'
 Plug 'hrsh7th/cmp-buffer'
 Plug 'hrsh7th/cmp-path'
 Plug 'hrsh7th/cmp-cmdline'
+Plug 'f3fora/cmp-spell'
 Plug 'saadparwaiz1/cmp_luasnip'
 Plug 'kdheepak/cmp-latex-symbols'
 Plug 'hrsh7th/nvim-cmp'
@@ -125,6 +133,14 @@ cmp.setup({
 		{ name = 'path' },
 	  })
   })
+  
+  cmp.setup.filetype('markdown', {
+	  sources = cmp.config.sources({
+		{ name = 'luasnip' }, 
+		{ name = 'latex_symbols' },
+		{ name = 'tags' },
+	  })
+  })
 
   cmp.setup.cmdline('/', {
 	  mapping = cmp.mapping.preset.cmdline(),
@@ -183,9 +199,9 @@ local on_attach = function(client, bufnr)
   buf_set_keymap('n', '<leader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
   buf_set_keymap('n', '<leader>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
   buf_set_keymap('n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
-  buf_set_keymap('n', '<leader>e', '<cmd>lua vim.lsp.diagnostic.show_line_diagnostics()<CR>', opts)
-  buf_set_keymap('n', '[d', '<cmd>lua vim.lsp.diagnostic.goto_prev()<CR>', opts)
-  buf_set_keymap('n', ']d', '<cmd>lua vim.lsp.diagnostic.goto_next()<CR>', opts)
+  buf_set_keymap('n', '<leader>e', '<cmd>lua vim.diagnostic.open_float()<CR>', opts)
+  buf_set_keymap('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', opts)
+  buf_set_keymap('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', opts)
   buf_set_keymap('n', '<leader>f', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
 end
 
@@ -201,7 +217,16 @@ require'lspconfig'.tsserver.setup {
 }
 require'lspconfig'.clangd.setup {
   on_attach = on_attach,
-  capabilities = capabilities
+  capabilities = capabilities,
+  cmd = {
+	  "clangd",
+	  "--background-index",
+	  "--suggest-missing-includes",
+	  "--clang-tidy",
+	  "--completion-style=bundled",
+	  "--header-insertion=iwyu"
+  },
+  flags = {debounce_text_changes = 150},
 }
 require'lspconfig'.texlab.setup {
   on_attach = on_attach,
@@ -210,11 +235,11 @@ require'lspconfig'.texlab.setup {
 require'lspconfig'.rust_analyzer.setup{
   on_attach = on_attach,
   capabilities = capabilities,
-  cmd = { os.getenv("HOME").."/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/rust-analyzer" },
+  cmd = { os.getenv("HOME").."/.rustup/toolchains/nightly-x86_64-unknown-linux-gnu/bin/rust-analyzer" },
   settings = {
       ["rust-analyzer"] = {
     	  ["checkOnSave"] = {
-    		["allTargets"] = "false"
+    		["allTargets"] = false
   	      }
       }
   },
@@ -226,30 +251,41 @@ EOF
 lua <<EOF
 require'nvim-treesitter.configs'.setup {
 	ensure_installed = {
-		'bibtex', 
+		'query',
 		'comment', 
+		'bibtex', 
+		'latex',
+		'make',
+		'cmake',
 		'c', 
 		'cpp', 
 		'go', 
+		'json',
+		'css',
 		'html', 
 		'javascript', 
+		'typescript', 
+		'tsx', 
+		'php',
 		'python', 
 		'rust',
 		'ocaml',
-		'typescript', 
-		'tsx', 
-		'css',
-		'html',
-		'latex',
+		'ocaml_interface',
+		'ocamllex',
 		'markdown',
 		'markdown_inline',
+		'ledger',
 		'lua',
+		'vim',
+		'scheme',
 		'supercollider',
+		'gitignore',
+		'bash',
 	},
 	highlight = {
 		enable = true,
 		-- disable = { 'markdown' },
-		additional_vim_regex_highlighting = true,
+		additional_vim_regex_highlighting = { 'html' },
 	},
 	indent = {
 		enable = false,
@@ -260,8 +296,8 @@ require'nvim-treesitter.configs'.setup {
 			enable = true,
 			keymaps = {
 				smart_rename = "grr",
-				},
 			},
+		},
 		navigation = {
 			enable = true,
 			keymaps = {
@@ -270,9 +306,9 @@ require'nvim-treesitter.configs'.setup {
 				list_definitions_toc = "gO",
 				goto_next_usage = "<a-*>",
 				goto_previous_usage = "<a-#>",
-				},
 			},
 		},
+	},
 }
 EOF
 
@@ -305,15 +341,16 @@ set tw=80
 set nowrap
 set formatoptions-=t
 set autoindent
-set nolist
+
+" Listchars
+set list
 set listchars=tab:>-
 
 " Folding
 set foldmethod=syntax
 set foldlevel=99
 
-" FZF Configs
-nnoremap <leader>ff :Files<Cr>
+" FZF 
 command! -bang -nargs=* Rg
   \ call fzf#vim#grep(
   \   'rg --column --line-number --no-heading --color=always --smart-case '.shellescape(<q-args>), 1,
@@ -323,8 +360,9 @@ command! -bang -nargs=* Rg
 
 command! -bang -nargs=? -complete=dir Files
   \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
-imap <c-x><c-l> <plug>(fzf-complete-line)
-nmap <C-b> :Buffers<CR>
+" imap <c-x><c-l> <plug>(fzf-complete-line)
+" nmap <C-b> :Buffers<CR>
+" nnoremap <leader>ff :Files<Cr>
 
 " Go to paste position
 nnoremap <expr> gp '`[' . strpart(getregtype(), 0, 1) . '`]'
@@ -431,7 +469,7 @@ augroup TexColors
 augroup END
 
 " Conceal
-au FileType tex,markdown setlocal conceallevel=2
+au FileType tex,markdown setlocal conceallevel=0
 
 " Mouse
 set mouse=a
@@ -535,14 +573,35 @@ let g:opamshare = substitute(system('~/.local/bin/opam var share'),'\n$','',''''
 execute "set rtp+=" . g:opamshare . "/merlin/vim"
 
 " Chadtree
-nnoremap <C-n> <cmd>CHADopen<cr>
-let g:chadtree_settings = { "options.polling_rate": 6.0 }
+" nnoremap <C-n> <cmd>CHADopen<cr>
+" let g:chadtree_settings = { "options.polling_rate": 6.0 }
+
+" Neo-tree
+nnoremap <C-n> <cmd>Neotree source=filesystem reveal=true toggle=true position=float<CR>
+
+" Notify
+lua<<EOF
+require'notify'.setup {
+	background_colour = "#000000"
+}
+vim.notify = require("notify")
+EOF
+
+" Dressing
+lua<<EOF
+require('dressing').setup({
+  input = {
+    winhighlight = "NormalFloat:Normal",
+  }
+})
+EOF
 
 " Buffer utility
 nnoremap <C-x><C-d> :bp\|bd #<CR>
 
 " Markdown
 let g:vim_markdown_no_default_key_mappings = 1
+let g:vim_markdown_frontmatter = 1
 let g:mkdx#settings = { 'highlight': { 'enable': 1 },
 			\ 'enter': { 'shift': 1 },
 			\ 'tab': { 'enable': 0 },
@@ -557,20 +616,26 @@ augroup md_kbs
 		let mdlink = "[" . a:l[0] . "](" . ztk_id . ")"
 		return mdlink
 	endfunction
-	autocmd FileType markdown vnoremap <c-l>s :s/\s\{2,}/ /g<cr>:noh<cr>
-	autocmd FileType markdown inoremap <expr> <c-l>z fzf#vim#complete({
-	\ 'source':  'rg --no-heading --smart-case  .',
-	\ 'reducer': function('<sid>make_note_link'),
-	\ 'options': '--exact --print-query --multi --reverse --margin 15%,0',
-	\ 'up':    15})
+"	autocmd FileType markdown inoremap <expr> <c-l>z fzf#vim#complete({
+"	\ 'source':  'rg --no-heading --smart-case  .',
+"	\ 'reducer': function('<sid>make_note_link'),
+"	\ 'options': '--ansi --exact --print-query --multi --reverse --margin 15%,0 --prompt "Link> "',
+"	\ 'up':      '20%' })
 	autocmd FileType markdown setlocal textwidth=0
 	autocmd FileType markdown setlocal wrapmargin=0
 	autocmd FileType markdown setlocal linebreak
 	autocmd FileType markdown setlocal nowrap
 	autocmd FileType markdown setlocal wrap
 	autocmd FileType markdown setlocal nonumber
-	autocmd FileType markdown inoremap <c-l>c <Esc>vip<CR>:s/­ //eg<CR>vip<CR>:s/\s\{2,}/ /eg<CR>
-	autocmd FileType markdown vnoremap <c-l>c :s/­ //eg<CR>gv<CR>:s/\s\{2,}/ /ge<CR>gv<CR>
+	" autocmd FileType markdown inoremap <c-c>c <Esc>vip<CR>:s/­ //eg<CR>vip<CR>:s/\s\{2,}/ /eg<CR>
+	autocmd FileType markdown inoremap <c-l>s <cmd>s/\(\(\s\)\s\{1,}\\|­ \)/\2/ge<CR><cmd>noh<cr>
+	autocmd FileType markdown vnoremap <c-l>s <c-u>:s/\(\(\s\)\s\{1,}\\|­ \)/\2/eg<CR><cmd>:noh<CR>
+	autocmd FileType markdown setlocal spelllang=pt_br,en_us,de_de,fr
+	autocmd FileType markdown setlocal spellcapcheck=
+	autocmd FileType markdown nnoremap <F1> :setlocal spell!<cr>
+	autocmd FileType markdown inoremap <F1> <c-o>:setlocal spell!<cr>
+	autocmd FileType markdown nnoremap <BS> :e#<CR>
+	nnoremap gI :silent ! qiv <cfile><CR>
 	"autocmd FileType markdown set columns=80
 augroup END
 lua<<EOF
@@ -587,6 +652,10 @@ require('mkdnflow').setup({
         MkdnPrevLink = false,
 		MkdnTableNextCell = false,
 		MkdnTablePrevCell = false,
+		MkdnGoBack = false,
+		MkdnGoForward = false,
+		MkdnEnter = false,
+		MkdnFollowLink = {'n', '<CR>'},
 		MkdnTableNewRowBelow = {'n', '<leader>ir'},
 		MkdnTableNewRowAbove = {'n', '<leader>iR'},
 		MkdnTableNewColAfter = {'n', '<leader>ic'},
@@ -740,28 +809,6 @@ endfunction
 inoremap <silent> ^^ <C-o>:<c-u>call <SID>AddMkdnFootnotes('a')<CR>
 inoremap <silent> ^r <C-o>:<c-u>call <SID>AddMkdnReference('a')<CR>
 nnoremap <silent> <Leader>fn :<c-u>call <SID>AddMkdnFootnotes('a')<CR>
-
-" fzf-bibtex
-function! Bibtex_ls()
-  let bibfiles = (
-      \ globpath('.', '*.bib', v:true, v:true)
-      \ )
-  let bibfiles = join(bibfiles, ' ')
-  let source_cmd = $HOME.'/go/bin/bibtex-ls '.bibfiles
-  return source_cmd
-endfunction
-
-function! s:bibtex_cite_sink_insert(lines)
-    let r=system($HOME."/go/bin/bibtex-cite ", a:lines)
-    execute ':normal! a' . r
-    call feedkeys('a', 'n')
-endfunction
-
-inoremap <silent> @@ <c-g>u<c-o>:call fzf#run({
-                        \ 'source': Bibtex_ls(),
-                        \ 'sink*': function('<sid>bibtex_cite_sink_insert'),
-                        \ 'up': '40%',
-                        \ 'options': '--ansi --layout=reverse-list --multi --prompt "Cite> "'})<CR>
 
 " Auto-session
 lua<<EOF
@@ -967,3 +1014,168 @@ command! LuaSnipEdit :lua require("luasnip.loaders").edit_snippet_files()
 
 " Toggle line numbers
 nnoremap <leader>nu :set nu!<CR>
+
+" Telescope
+lua<<EOF
+local actions = require('telescope.actions')
+local action_state = require('telescope.actions.state')
+
+local copy_to_clipboard = function(prompt_bufnr)
+	local entry = action_state.get_selected_entry()
+	actions.close(prompt_bufnr)
+	local filename, row, col
+
+	if entry.path or entry.filename then
+		filename = entry.filename or entry.path
+
+		-- TODO: Check for off-by-one
+		row = entry.row or entry.lnum
+		col = vim.F.if_nil(entry.col, 1)
+	elseif not entry.bufnr then
+		-- TODO: Might want to remove this and force people
+		-- to put stuff into `filename`
+		local value = entry.value
+		if not value then
+			vim.notify("actions.set.edit", {
+				msg = "Could not do anything with blank line...",
+				level = "WARN",
+			})
+			return
+		end
+		if type(value) == "table" then
+			value = entry.display
+		end
+
+		local sections = vim.split(value, ":")
+
+		filename = sections[1]
+		row = tonumber(sections[2])
+		col = tonumber(sections[3])
+	end
+
+	vim.fn.setreg(vim.v.register, filename)
+	vim.notify("Path copied to clipboard!")
+end
+
+require('telescope').setup {
+  defaults = {
+    mappings = {
+      i = {
+        ["<C-h>"] = "which_key",
+      }
+    }
+  },
+  extensions = {
+    fzf = {
+      fuzzy = true,                    -- false will only do exact matching
+      override_generic_sorter = true,  -- override the generic sorter
+      override_file_sorter = true,     -- override the file sorter
+      case_mode = "smart_case",        -- or "ignore_case" or "respect_case"
+                                       -- the default case_mode is "smart_case"
+    }
+  },
+  pickers = {
+	  buffers = {
+		  sort_lastused = true,
+		  ignore_current_buffer = true,
+		  sort_mru = true,
+	  },
+	  live_grep = {
+		  mappings = {
+			  i = {
+				  ["<C-y>"] = copy_to_clipboard,
+			  },
+		  }
+	  },
+  find_files = {
+	  mappings = {
+		  n = {
+			  ["cd"] = function(prompt_bufnr)
+			  local selection = require("telescope.actions.state").get_selected_entry()
+			  local dir = vim.fn.fnamemodify(selection.path, ":p:h")
+			  require("telescope.actions").close(prompt_bufnr)
+			  -- Depending on what you want put `cd`, `lcd`, `tcd`
+			  vim.cmd(string.format("silent lcd %s", dir))
+			  end
+		  },
+		  i = {
+			  ["<C-y>"] = copy_to_clipboard,
+			  },
+		  },
+	  },
+  },
+}
+-- To get fzf loaded and working with telescope, you need to call
+-- load_extension, somewhere after setup function:
+require('telescope').load_extension('fzf')
+require('telescope').load_extension('bibtex')
+EOF
+
+nnoremap <leader>ff <cmd>Telescope find_files<cr>
+inoremap <C-f>f <cmd>Telescope find_files<cr>
+nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+nnoremap <C-b> <cmd>Telescope buffers theme=ivy<cr>
+inoremap <C-b> <cmd>Telescope buffers theme=ivy<cr>
+nnoremap <leader>fm <cmd>Telescope marks<cr>
+nnoremap z= <cmd>Telescope spell_suggest theme=ivy<cr>
+nnoremap <leader>fh <cmd>Telescope highlights<cr>
+nnoremap <leader>fd <cmd>Telescope lsp_document_symbols<cr>
+inoremap <C-f>d <cmd>Telescope lsp_document_symbols<cr>
+nnoremap <leader>fw <cmd>Telescope lsp_workspace_symbols<cr>
+nnoremap <leader>ft <cmd>Telescope treesitter theme=ivy<cr>
+inoremap <C-f>t <cmd>Telescope treesitter theme=ivy<cr>
+nnoremap <leader>fT <cmd>Telescope tags theme=ivy<cr>
+nnoremap <leader>fG <cmd>Telescope current_buffer_fuzzy_find<cr>
+inoremap <C-f>G <cmd>Telescope current_buffer_fuzzy_find<cr>
+autocmd FileType markdown inoremap @@ <cmd>Telescope bibtex theme=ivy<cr>
+autocmd FileType tex inoremap @@ <cmd>Telescope bibtex theme=ivy<cr>
+
+" Knap
+lua<<EOF
+-- set shorter name for keymap function
+local kmap = vim.keymap.set
+
+-- F5 processes the document once, and refreshes the view
+kmap('i','<F5>', function() require("knap").process_once() end)
+kmap('v','<F5>', function() require("knap").process_once() end)
+kmap('n','<F5>', function() require("knap").process_once() end)
+
+-- F6 closes the viewer application, and allows settings to be reset
+kmap('i','<F6>', function() require("knap").close_viewer() end)
+kmap('v','<F6>', function() require("knap").close_viewer() end)
+kmap('n','<F6>', function() require("knap").close_viewer() end)
+
+-- F7 toggles the auto-processing on and off
+kmap('i','<F7>', function() require("knap").toggle_autopreviewing() end)
+kmap('v','<F7>', function() require("knap").toggle_autopreviewing() end)
+kmap('n','<F7>', function() require("knap").toggle_autopreviewing() end)
+
+-- F8 invokes a SyncTeX forward search, or similar, where appropriate
+kmap('i','<F8>', function() require("knap").forward_jump() end)
+kmap('v','<F8>', function() require("knap").forward_jump() end)
+kmap('n','<F8>', function() require("knap").forward_jump() end)
+
+local gknapsettings = {
+    texoutputext = "pdf",
+    textopdf = "pdflatex -synctex=1 -halt-on-error -interaction=batchmode %docroot%",
+	textopdfviewerlaunch = os.getenv("HOME").."/bin/sioyek --inverse-search 'nvim --headless -es --cmd \"lua require('\"'\"'knaphelper'\"'\"').relayjump('\"'\"'%servername%'\"'\"','\"'\"'%1'\"'\"',%2,%3)\"' --reuse-instance %outputfile%",
+	textopdfforwardjump = os.getenv("HOME").."/bin/sioyek --inverse-search 'nvim --headless -es --cmd \"lua require('\"'\"'knaphelper'\"'\"').relayjump('\"'\"'%servername%'\"'\"','\"'\"'%1'\"'\"',%2,%3)\"' --reuse-instance --forward-search-file %srcfile% --forward-search-line %line% %outputfile%",
+    textopdfviewerrefresh = "none",
+	mdoutputext = "pdf",
+	mdtohtml = os.getenv("HOME").."/.local/bin/pandoc --mathjax --css "..os.getenv("HOME").."/waste/eta/.pandoc/style.css --standalone %docroot% -f markdown-smart -N --filter "..os.getenv("HOME").."/.local/bin/pandoc-citeproc --filter "..os.getenv("HOME").."/waste/repos/01mf02/pandocfilters/defenv.py --csl "..os.getenv("HOME").."/waste/eta/.pandoc/math.csl --bibliography "..os.getenv("HOME").."/waste/sync/k/n/db.bib -o %outputfile%",
+	mdtohtmlviewerlaunch = "surf %outputfile%",
+	mdtohtmlviewerrefresh = "kill -HUP %pid%",
+	mdtopdf = os.getenv("HOME").."/.local/bin/pandoc %docroot% --pdf-engine=xelatex -H "..os.getenv("HOME").."/waste/eta/.pandoc/header.tex -f markdown-smart -N --filter "..os.getenv("HOME").."/.local/bin/pandoc-citeproc --filter "..os.getenv("HOME").."/waste/repos/01mf02/pandocfilters/defenv.py --csl "..os.getenv("HOME").."/waste/eta/.pandoc/math.csl --bibliography "..os.getenv("HOME").."/waste/sync/k/n/db.bib -o %outputfile%",
+	mdtopdfviewerlaunch = os.getenv("HOME").."/bin/sioyek %outputfile%",
+	mdtopdfviewerrefresh = "none",
+}
+vim.g.knap_settings = gknapsettings
+EOF
+
+" Show highlights under cursor
+function! Syn()
+  for id in synstack(line("."), col("."))
+    echo synIDattr(id, "name")
+  endfor
+endfunction
+command! -nargs=0 Syn call Syn()
